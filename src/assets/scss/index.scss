@@ -1,0 +1,181 @@
+@import 'variables';
+
+
+body {
+    margin: 0;
+    box-sizing: border-box;
+    padding: 0;
+    background-color: #eeeeee;
+}
+
+html {
+    /* font-size: 62.5%; */
+}
+
+.my-header {
+    background-color: $main-color;
+    height: 120px;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.itemNavMenu {
+    display: inline-block;
+    cursor: pointer;
+
+    &:hover {
+        opacity: .8;
+    }
+}
+
+.itemNavMenu+.itemNavMenu {
+    margin-left: 12px;
+}
+
+.form-control:focus {
+    border-color: red;
+    /* Thay đổi màu viền khi trường input được chọn */
+    box-shadow: none;
+    /* Loại bỏ hiệu ứng bóng đổ (shadow) khi trường input được chọn */
+}
+
+.cardHover {
+    box-shadow: none;
+    transition: .25s;
+    cursor: pointer;
+}
+
+.cardHover:hover {
+    border: 0px solid transparent;
+    border-radius: 5px;
+    /* Bo góc với bán kính 10px */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
+.blur-background {
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Màu nền mờ */
+    backdrop-filter: blur(5px);
+    /* Hiệu ứng mờ */
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    /* Đảm bảo lớp mờ nằm phía trên các phần tử khác */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.non-bg {
+    background-color: transparent !important;
+    box-shadow: none;
+    color: #fff;
+}
+
+.bg-white {
+    background-color: $white-color;
+}
+
+.bg-main {
+    background-color: $main-color;
+}
+
+.bg-error {
+    background-color: $error-color;
+}
+
+.textColorRed {
+    color: $error-color;
+}
+
+.box-shadowColor {
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-buy {
+    background-color: #ff4500;
+}
+
+.hover-item {
+    transition: .2s;
+
+    &:hover {
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.4);
+    }
+}
+
+.nameListTitle {
+    text-align: center;
+    transition: .25s;
+    padding: 4px !important;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.nameListTitle:hover {
+    background-color: $primary-color;
+    color: $white-color;
+}
+
+.logout.nameListTitle:hover {
+    background-color: $error-color;
+    color: $white-color;
+}
+
+.card-cate-home {
+    box-shadow: none;
+    transition: .25s;
+    cursor: pointer;
+}
+
+.card-cate-home {
+    &:hover {
+        background-color: rgb(220, 204, 204);
+    }
+}
+
+.titleMyCartContent {
+    font-size: 32px;
+    // font-weight: bold;
+    opacity: 0.8;
+}
+
+.name-tab-nav {
+    font-weight: bold;
+    transition: .25s;
+
+    &:hover {
+        color: red;
+    }
+}
+
+.active-tab {
+    color: red !important; // Sử dụng màu đỏ cho tab khi nó được kích hoạt
+}
+
+.fixed-bottom {
+    transform: translateY(100%);
+    /* Mặc định, modal sẽ nằm dưới màn hình */
+    transition: transform 0.3s ease-in-out;
+    /* Hiệu ứng transition kéo dài 0.5s */
+}
+
+.fixed-bottom.show {
+    transform: translateY(0);
+    /* Khi modal được hiển thị, nó sẽ di chuyển lên màn hình */
+}
+
+.name-filter {
+    background-color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.name-filter+.name-filter {
+    margin-left: 10px;
+}
