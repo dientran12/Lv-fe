@@ -24,7 +24,7 @@ import { updateUser } from '~/redux/slides/userSlide';
 
 
 function SignInPage() {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate()
@@ -32,29 +32,29 @@ function SignInPage() {
     const mutation = useCustomMutation(
         data => UserService.loginUser(data)
     )
-    const { data, isLoading, isSuccess } = mutation;
+    const { data, isLoading, isSuccess, isError } = mutation;
 
     const handleCheckboxChange = () => {
         setShowPassword(!showPassword);
     };
 
-    const handleOnchangeEmail = (e) => {
-        setEmail(e.target.value)
+    const handleOnchangeUsername = (e) => {
+        setUsername(e.target.value)
     }
     const handleOnchangePassword = (e) => {
         setPassword(e.target.value)
     }
 
     const handleSignIn = (e) => {
-        console.log('sign in', email, password)
+        console.log('sign in', username, password)
         mutation.mutate({
-            email,
+            username,
             password
         })
     }
 
     useEffect(() => {
-        if (data?.status === 'OK') {
+        if (isSuccess) {
             toast.success('Log in is successful', {
                 // position: "top-center",
                 autoClose: 1500,
@@ -65,16 +65,17 @@ function SignInPage() {
                 theme: "dark",
             });
             localStorage.setItem('accessToken', JSON.stringify(data?.accessToken))
-            if (data?.accessToken) {
+            if (isSuccess) {
                 const decoded = jwt_decode(data?.accessToken)
-                if (decoded?.id) {
-                    handleGetDetailsUser(decoded?.id, data?.accessToken)
+                console.log("decode", decoded);
+                if (decoded?.username) {
+                    handleGetDetailsUser(data?.accessToken)
                 }
             }
             navigate('/');
         }
 
-        if (data?.status === 'error') {
+        if (isError) {
             toast.error(<div>Login failed!<br /><div style={{ color: 'red', fontWeight: 'bold' }}>{data?.message}</div></div>, {
                 // position: "top-center",
                 autoClose: 2500,
@@ -86,11 +87,11 @@ function SignInPage() {
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data?.status, isSuccess])
+    }, [isError, isSuccess])
 
-    const handleGetDetailsUser = async (id, token) => {
-        const response = await UserService.getDetailsUser(id, token)
-        dispatch(updateUser({ ...response?.data, accessToken: token }))
+    const handleGetDetailsUser = async (token) => {
+        const response = await UserService.getDetailsUser(token)
+        dispatch(updateUser({ ...response?.user, accessToken: token }))
     }
 
     return (
@@ -108,7 +109,7 @@ function SignInPage() {
                                 <h5 className="fw-normal my-4 pb-3" style={{ letterSpacing: '1px' }}>Sign into your account</h5>
                                 <MDBValidation>
                                     <MDBValidationItem feedback='Please enter an email address.' invalid={true}>
-                                        <MDBInput wrapperClass='mb-4' value={email} onChange={handleOnchangeEmail} required label='Email address' id='inputEmailSignIn' type='email' size="lg" />
+                                        <MDBInput wrapperClass='mb-4' value={username} onChange={handleOnchangeUsername} required label='User name' id='inputEmailSignIn' type='text' size="lg" />
                                     </MDBValidationItem>
                                     <MDBValidationItem feedback='Please enter an password.' invalid>
                                         <MDBInput label='Password' id='inputPassSignIn' type={showPassword ? 'text' : 'password'} required value={password} onChange={handleOnchangePassword} size='lg' />
@@ -139,7 +140,6 @@ function SignInPage() {
                                         </Loading>
                                     </MDBBtn>
                                 </MDBValidation>
-
                             </MDBCardBody>
                         </div>
                     </MDBCard>

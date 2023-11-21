@@ -12,8 +12,8 @@ import {
     MDBIcon,
 } from 'mdb-react-ui-kit';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-const NavbarCompoent = () => {
-    const menuList = [{ name: "Category", path: "category" }, { name: "Pants", path: "#" }, { name: "CatShirtsegory", path: "#" }, { name: "Promotion", path: "#" }]
+const NavbarHeader = () => {
+    const menuList = [{ name: "Category", path: "category" }, { name: "Promotion", path: "#" }]
     const navigation = useNavigate();
     const location = useLocation(); // Sử dụng hook này
     const handleNavigateToHome = () => {
@@ -38,4 +38,4 @@ const NavbarCompoent = () => {
     )
 }
 
-export default NavbarCompoent
+export default NavbarHeader

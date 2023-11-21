@@ -22,6 +22,7 @@ import Loading from '~/components/LoadingComponent/Loading';
 
 function App() {
     const [email, setEmail] = useState('');
+    const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -35,7 +36,9 @@ function App() {
     const handleCheckboxChange = () => {
         setShowPassword(!showPassword);
     };
-
+    const handleOnchangeName = (e) => {
+        setName(e.target.value)
+    }
     const handleOnchangeEmail = (e) => {
         setEmail(e.target.value)
     }
@@ -47,7 +50,7 @@ function App() {
     }
 
     useEffect(() => {
-        if (data?.status === 'OK') {
+        if (isSuccess) {
             toast.success('Create account is Success', {
                 // position: "top-center",
                 autoClose: 1500,
@@ -59,7 +62,7 @@ function App() {
             });
             navigate('/sign-in');
         }
-        if (data?.status === 'error') {
+        if (isError) {
             toast.error(<div>Create account is fail!<br /><div style={{ color: 'red', fontWeight: 'bold' }}>{data?.message}</div></div>, {
                 // position: "top-center",
                 autoClose: 2500,
@@ -71,15 +74,19 @@ function App() {
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data?.status])
+    }, [isSuccess, isError])
 
-    const handleSignUp = (e) => {
-        console.log('sign in', email, password, confirmPassword)
+    const handleSignUp = () => {
+        console.log('sign in', name, email, password, confirmPassword)
+        if (confirmPassword !== password) {
+            toast.error('Sign Up Fail');
+            return
+        }
         try {
             mutation.mutate({
+                username: name,
                 email,
-                password,
-                confirmPassword
+                password
             })
         } catch (error) {
             console.log('error', error)
@@ -105,6 +112,9 @@ function App() {
 
                                 <h5 className="fw-normal my-4 pb-3" style={{ letterSpacing: '1px' }}>Create your account</h5>
                                 <MDBValidation>
+                                    <MDBValidationItem feedback='Please enter an email address' invalid>
+                                        <MDBInput wrapperClass='mb-4' value={name} onChange={handleOnchangeName} required label='User name' id='inputName' type='text' size="lg" />
+                                    </MDBValidationItem>
                                     <MDBValidationItem feedback='Please enter an email address' invalid>
                                         <MDBInput wrapperClass='mb-4' value={email} onChange={handleOnchangeEmail} required label='Email address' id='inputEmail' type='email' size="lg" />
                                     </MDBValidationItem>

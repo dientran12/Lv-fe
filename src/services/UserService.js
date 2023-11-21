@@ -3,62 +3,57 @@ import axios from "axios";
 export const axiosJWT = axios.create()
 
 export const loginUser = async (data) => {
-    const res = await axios.post(`${process.env.REACT_APP_API_URL_BACKEND}/user/sign-in`, data)
+    const res = await axios.post(`${process.env.REACT_APP_API_URL_BACKEND}/auth/login`, data)
+    console.log("res.data", res.data)
     return res.data
 }
 
 export const createUser = async (data) => {
-    console.log('data createuser', data)
-    const res = await axios.post(`${process.env.REACT_APP_API_URL_BACKEND}/user/sign-up`, data)
+    const res = await axios.post(`${process.env.REACT_APP_API_URL_BACKEND}/auth/signup`, data)
     return res.data
 }
 
-export const getDetailsUser = async (id, accessToken) => {
-    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL_BACKEND}/user/get-details/${id}`, {
-        headers: {
-            token: `Beare ${accessToken}`
-        }
+export const getDetailsUser = async (accessToken) => {
+    console.log("accessToken", accessToken)
+    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL_BACKEND}/auth/me`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
     })
     return res.data
 }
 
 export const deleteUser = async (id, accessToken) => {
-    const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL_BACKEND}/user/delete/${id}`, {
-        headers: {
-            token: `Beare ${accessToken}`
-        }
+    const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL_BACKEND}/users/delete/${id}`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
     })
     return res.data
 }
 
 export const getAllUser = async (accessToken) => {
-    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL_BACKEND}/user/get-all`, {
-        headers: {
-            token: `Beare ${accessToken}`
-        }
+    console.log('accessToken', accessToken)
+    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL_BACKEND}/users/get-all`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
     })
     return res.data
 }
 
 export const refreshToken = async () => {
-    const res = await axios.post(`${process.env.REACT_APP_API_URL_BACKEND}/user/refresh-token`, {
+    const res = await axios.post(`${process.env.REACT_APP_API_URL_BACKEND}/users/refresh-token`, {
         withCredentials: true
     })
     return res.data
 }
 
 export const logoutUser = async () => {
-    const res = await axios.post(`${process.env.REACT_APP_API_URL_BACKEND}/user/log-out`)
+    const res = await axios.post(`${process.env.REACT_APP_API_URL_BACKEND}/users/log-out`)
+    localStorage.removeItem('accessToken');
     return res.data
-    // localStorage.setItem('accessToken', JSON.stringify(data?.accessToken))
 }
 
 export const updateUser = async (id, data, accessToken) => {
     console.log("data in updateUser", data)
-    const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL_BACKEND}/user/update/${id}`, data, {
-        headers: {
-            token: `Beare ${accessToken}`
-        }
+    const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL_BACKEND}/users/updateProfile/`, data, {
+        headers: { Authorization: `Bearer ${accessToken}` }
     })
     return res.data
 }
+

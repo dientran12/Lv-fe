@@ -1,64 +1,53 @@
-import React, { useState } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { FreeMode, Navigation, Thumbs } from 'swiper/modules';
-import { MDBCol, MDBContainer, MDBRow } from 'mdb-react-ui-kit';
+import React from 'react';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import CardProductHome from '~/components/CardComponent/CardProductHome';
 
-export default function App() {
-    const [thumbsSwiper, setThumbsSwiper] = useState(null);
+function YourComponent() {
 
-    const images = [
-        "https://swiperjs.com/demos/images/nature-1.jpg",
-        "https://swiperjs.com/demos/images/nature-2.jpg",
-        "https://swiperjs.com/demos/images/nature-2.jpg",
-        "https://swiperjs.com/demos/images/nature-2.jpg",
-        "https://swiperjs.com/demos/images/nature-2.jpg",
-        // ... (các URLs khác)
+    const dataCate = [
+        {
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            name: "Iphone"
+        },
+        {
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            name: "Iphone"
+        },
+        {
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            name: "Iphone"
+        }, {
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            name: "Iphone"
+        }, {
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            name: "Iphone"
+        },
+        // Thêm dữ liệu cho các slide khác ở đây
     ];
 
-    return (
-        <MDBContainer className="py-5">
-            <MDBRow className="gx-5">
-                <MDBCol lg="6">
-                    <Swiper
-                        style={{
-                            '--swiper-navigation-color': '#fff',
-                            '--swiper-pagination-color': '#fff',
-                        }}
-                        loop={true}
-                        spaceBetween={10}
-                        navigation={true}
-                        thumbs={{ swiper: thumbsSwiper }}
-                        modules={[FreeMode, Navigation, Thumbs]}
-                        className="mySwiper2"
-                    >
-                        {images.map((src, index) => (
-                            <SwiperSlide key={index}>
-                                <img src={src} alt={`Slide ${index}`} style={{ width: '100%', height: 'auto' }} />
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
+    const settings = {
+        infinite: false,
+        speed: 500,
+        slidesToShow: 4,
+        slidesToScroll: 3
+    };
 
-                    <Swiper
-                        onSwiper={setThumbsSwiper}
-                        loop={true}
-                        spaceBetween={50}
-                        slidesPerView={4}
-                        freeMode={true}
-                        watchSlidesProgress={true}
-                        modules={[FreeMode, Navigation, Thumbs]}
-                        className="mySwiper "
-                    >
-                        {images.map((src, index) => (
-                            <SwiperSlide key={index}>
-                                <img src={src} alt={`Thumbnail ${index}`} style={{ width: '100%', height: 'auto' }} />
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
-                </MDBCol>
-                <MDBCol lg="6">
-                    {/* Nội dung hoặc thành phần khác */}
-                </MDBCol>
-            </MDBRow>
-        </MDBContainer>
+    return (
+        <div className="d-flex justify-content-center">
+            <div className="w-75" style={{ backgroundColor: "#ccc" }}>
+                <Slider {...settings}>
+                    {dataCate.map((item, index) => (
+                        <div key={index}>
+                            <CardProductHome />
+                        </div>
+                    ))}
+                </Slider>
+            </div>
+        </div>
     );
 }
+
+export default YourComponent;

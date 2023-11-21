@@ -1,7 +1,7 @@
 import React from 'react'
 import { PulseLoader } from 'react-spinners'
 
-const Loading = ({ children, isLoading, color = "red" }) => {
+const Loading = ({ children, isLoading, color = "white" }) => {
     if (isLoading) {
         return (
             <PulseLoader

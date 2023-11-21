@@ -7,33 +7,33 @@ import ListCate from '~/components/ListCateComponent/ListCate';
 const HomePage = () => {
     const dataCate = [
         {
-            imageSrc: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
             name: "Iphone"
         },
         {
-            imageSrc: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
             name: "Iphone"
         },
         {
-            imageSrc: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
             name: "Iphone"
         }, {
-            imageSrc: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
             name: "Iphone"
         }, {
-            imageSrc: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
             name: "Iphone"
         }, {
-            imageSrc: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
             name: "Iphone"
         }, {
-            imageSrc: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
             name: "Iphone"
         }, {
-            imageSrc: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
             name: "Iphone"
         }, {
-            imageSrc: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
+            image: "https://cdn2.yame.vn/pimg/quan-short-ngan-ha-space-ver7-0021095/15793943-2618-6201-18c8-001957bbc450.jpg?w=540&h=756",
             name: "Iphone"
         }
     ]
@@ -43,7 +43,11 @@ const HomePage = () => {
         <>
             <MDBContainer>
                 <SliderComponent />
-                <div className="my-5 "><ListCate data={dataCate} /></div>
+                <div className="bg-white " style={{ marginTop: '20px' }}>
+                    <div className=" mb-0 pt-3 pt-1 ps-3 titleMyCartContent">Categories</div>
+                    <hr style={{ color: 'orange' }} />
+                    <div className="my-5 "><ListCate dataCate={dataCate} /></div>
+                </div>
                 <div className="bg-white " style={{ marginTop: '20px' }}>
                     <div className=" mb-0 pt-3 pt-1 ps-3 titleMyCartContent">Top Products</div>
                     <hr style={{ color: 'orange' }} />

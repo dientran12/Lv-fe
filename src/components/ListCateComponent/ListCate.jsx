@@ -1,17 +1,25 @@
 import React from 'react';
-import { MDBCarousel, MDBCarouselItem, MDBBtn, MDBCardImage, MDBCol } from 'mdb-react-ui-kit';
+import Slider from 'react-slick';
 import CardCateHome from '~/components/CardComponent/CardCateHome';
 
-function ListCate({ data }) {
+function ListCate({ dataCate }) {
+
+    const settings = {
+        infinite: false,
+        speed: 100,
+        slidesToShow: 8,
+        slidesToScroll: 8
+    };
+
     return (
-        <div className="bg-white ">
-            <div className=" mb-0 pt-3 pt-1 ps-3 titleMyCartContent">Categories</div>
-            <hr style={{ color: 'orange' }} />
-            <div className="d-flex flex-wrap justify-content-between mx-2 py-3" >
-                {data.map((item, index) => (
-                    <CardCateHome key={index} item={item} />
+        <div className="w-100" style={{ backgroundColor: "#ccc" }}>
+            <Slider {...settings}>
+                {dataCate.map((item, index) => (
+                    <div key={index}>
+                        <CardCateHome item={item} />
+                    </div>
                 ))}
-            </div>
+            </Slider>
         </div>
     );
 }

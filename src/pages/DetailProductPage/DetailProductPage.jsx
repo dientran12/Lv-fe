@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     MDBContainer,
     MDBRow,
@@ -10,207 +10,285 @@ import {
     MDBInput,
     MDBCardImage,
 } from 'mdb-react-ui-kit';
-import InputQuantityGroup from '~/components/InputGroupComponent/InputQuantityGroup';
 import { FreeMode, Navigation, Thumbs } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import ButtonBuyProduct from '~/components/ButtonComponent/ButtonBuyProduct';
+import ButtonAddCartComponent from '~/components/ButtonComponent/ButtonAddCartComponent';
+import * as ProductService from '~/services/ProductService'
+import LoadingHasChil from '~/components/LoadingComponent/LoadingHasChil';
+import InputQuantityDetailProduct from '~/components/InputComponent/InputQuantityDetailProduct';
 
 
 function DetailProductPage() {
+    const key = useParams();
     const [quantity, setQuantity] = useState(1)
+    const [detailProduct, setDetailProduct] = useState({})
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [isLoading, setIsLoading] = useState(true)
+    const [selectedSizeSelect, setSelectedSizeSelect] = useState(0);
+
+    const handleSizeChange = (sizeId) => {
+        setSelectedSizeSelect(sizeId);
+    };
+
+    const getMaxQuantity = (sizeId) => {
+        let selectedSizeItem = dataProduct && dataProduct[activeIndex]?.SizeItems[sizeId];
+        return selectedSizeItem ? selectedSizeItem.quantity : 1;
+    };
+
     const handleQuantityChange = (newValue) => {
-        console.log("Giá trị mới:", newValue);
         setQuantity(newValue);
     };
 
+    const fetchGetDetailsProduct = async (id) => {
+        const res = await ProductService.getDetailProduct(id)
+        setDetailProduct({
+            id: id,
+            name: res?.name,
+            price: res?.price,
+            brand: res?.brand,
+            gender: res?.gender,
+            origin: res?.origin,
+            categories: res?.Categories,
+            discountedPrice: res?.discountedPrice || res?.price,
+            listVersions: res?.Versions,
+            type: res?.type,
+            description: res?.description
+        })
+        setIsLoading(false)
+    }
     const [thumbsSwiper, setThumbsSwiper] = useState(null);
-    const navigation = useNavigate();
 
-    const dataProduct = [
-        { color: 'Yellow', size: 'S', imageUrl: 'https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big1.webp', quantity: 8 },
-        { color: 'Green', size: 'L', imageUrl: 'https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big2.webp', quantity: 7 },
-        { color: 'White', size: 'XL', imageUrl: 'https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big3.webp', quantity: 12 },
-        { color: 'Black', size: '2XL', imageUrl: 'https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big4.webp', quantity: 22 },
-        { color: 'Blue', size: '3XL', imageUrl: 'https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big.webp', quantity: 99 },
-        { color: 'Blue', size: '3XL', imageUrl: 'https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big.webp', quantity: 99 },
-        { color: 'Blue', size: '3XL', imageUrl: 'https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big.webp', quantity: 99 },
-        { color: 'Blue', size: '3XL', imageUrl: 'https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big.webp', quantity: 99 },
-    ]
+    useEffect(() => {
+        fetchGetDetailsProduct(key.key);
+    }, [key]);
+    const dataProduct = detailProduct?.listVersions
+
+
+    const handleSlideChange = (swiper) => {
+        setActiveIndex(swiper.activeIndex);
+    };
+
+    console.log('item active', activeIndex)
+    console.log('detailProduct?.listVersions', detailProduct?.listVersions)
+
+    const handleBuyClick = () => {
+        // Xử lý khi người dùng nhấn mua
+        console.log('Size đã chọn:', dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.Size.sizeName);
+        console.log('Số lượng đã chọn:', quantity);
+        return [{
+            versionId: dataProduct[activeIndex]?.id,
+            total: quantity,
+            sellingPrice: detailProduct?.discountedPrice,
+            price: detailProduct?.price,
+            image: dataProduct[activeIndex]?.image,
+            sizeItems: [{
+                sizeName: dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.Size.sizeName,
+                sizeItemId: dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.id,
+                quantity: quantity
+            },]
+        }]
+        // return [{ sizeItemId: dataProduct[activeIndex]?.SizeItems[selectedSizeSelect].id, quantity: quantity }]
+
+        // Thực hiện các xử lý khác nếu cần
+    };
+
+    const handleAddToCartClick = () => {
+        // Xử lý khi người dùng nhấn thêm vào giỏ hàng
+        console.log('Size đã chọn:', dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.Size.sizeName);
+        console.log('Size đã chọn:', dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]);
+        // console.log('Số lượng đã chọn:', quantity);
+        const dataAdd = { sizeItem: dataProduct[activeIndex]?.SizeItems[selectedSizeSelect], quantity: quantity }
+        return dataAdd
+        // Thực hiện các xử lý khác nếu cần
+    };
 
     return (
-        <MDBContainer className="my-5">
-            <MDBRow className="gx-5">
-                <MDBCol lg="6" >
-                    <div className="bg-white">
-                        <Swiper
-                            style={{
-                                '--swiper-navigation-color': '#ccc',
-                                '--swiper-pagination-color': '#fff',
-                            }}
-                            loop={true}
-                            spaceBetween={10}
-                            navigation={true}
-                            thumbs={{ swiper: thumbsSwiper }}
-                            modules={[FreeMode, Navigation, Thumbs]}
-                            className="mySwiper2 "
-                        >
-                            {dataProduct.map((product, index) => (
-                                <SwiperSlide key={index}>
-                                    <img src={product.imageUrl} alt={`Slide ${index}`} style={{ width: '100%', height: 'auto' }} />
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
-                        <hr></hr>
-                        <Swiper
-                            onSwiper={setThumbsSwiper}
-                            loop={true}
-                            spaceBetween={50}
-                            slidesPerView={5}
-                            freeMode={true}
-                            watchSlidesProgress={true}
-                            modules={[FreeMode, Navigation, Thumbs]}
-                            className="mySwiper mt-1 mx-3"
-                        >
-                            {dataProduct.map((product, index) => (
-                                <SwiperSlide key={index}>
-                                    <img className="p-2" src={product.imageUrl} alt={`Thumbnail ${index}`} style={{ width: '100%', height: 'auto' }} />
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
-                    </div>
-                </MDBCol>
-                <MDBCol lg="6" >
-                    <div className="ps-lg-3 p-4" style={{ backgroundColor: 'white' }}>
-                        <h4 className="title text-dark">
-                            Quality Men's Hoodie for Winter, Men's Fashion <br />
-                            Casual Hoodie
-                        </h4>
-                        <div className="d-flex flex-row my-3">
-                            <div className="text-warning mb-1 me-2">
-                                <i className="fa fa-star"></i>
-                                <span className="ms-1">{4.5}</span>
+        <LoadingHasChil isLoading={isLoading}>
+            <MDBContainer className="">
+                <div className=" pt-3 px-5 titleMyCartContent bg-white mb-4">
+                    Details Product
+                    <hr className="my-3 pb-4" />
+                </div>
+                {dataProduct &&
+                    <MDBRow className="">
+                        <MDBCol lg="6" >
+                            <div className="bg-white">
+                                <Swiper
+                                    style={{
+                                        '--swiper-navigation-color': '#ccc',
+                                        '--swiper-pagination-color': '#fff',
+                                    }}
+                                    spaceBetween={10}
+                                    navigation={true}
+                                    thumbs={{ swiper: thumbsSwiper }}
+                                    modules={[FreeMode, Navigation, Thumbs]}
+                                    onSlideChange={handleSlideChange}
+                                    className="mySwiper2"
+                                >
+                                    {dataProduct?.map((version) => (
+                                        <SwiperSlide key={version.id}>
+                                            <img src={version.image} alt={`Slide ${version.id}`} style={{ width: '100%', height: 'auto', aspectRatio: '1/1', objectFit: 'contain' }} />
+                                        </SwiperSlide>
+                                    ))}
+                                </Swiper>
+                                <hr></hr>
+                                <Swiper
+                                    onSwiper={setThumbsSwiper}
+                                    loop={true}
+                                    spaceBetween={10}
+                                    slidesPerView={dataProduct.length > 4 ? dataProduct.length : 4}
+                                    freeMode={true}
+                                    watchSlidesProgress={true}
+                                    modules={[FreeMode, Navigation, Thumbs]}
+                                    className="mySwiper"
+                                >
+                                    {dataProduct?.map((version) => (
+                                        <SwiperSlide key={version.id}>
+                                            <img className="p-2" src={version.image} alt={`Thumbnail ${version.id}`} style={{ width: '100%', height: 'auto', aspectRatio: '1/1' }} />
+                                        </SwiperSlide>
+                                    ))}
+                                </Swiper>
                             </div>
-                            <span className="text-muted">
-                                <MDBIcon fas icon="cart-plus" />
-                                154
-                                orders
-                            </span>
-                            <span className="text-success ms-2">In stock</span>
-                        </div>
+                        </MDBCol>
+                        <MDBCol lg="6" >
+                            <div className="ps-lg-3 p-4" style={{ backgroundColor: 'white' }}>
+                                <h4 className="title text-dark">
+                                    {detailProduct?.name}
+                                </h4>
+                                <p>
+                                    {detailProduct?.description}
+                                </p>
+                                <MDBRow>
+                                    <MDBCol size="3">
+                                        <MDBTypography tag="dt" className="col-3">
+                                            Type:
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="9">
+                                        <MDBTypography tag="dd" className="col-9">
+                                            {detailProduct?.type}
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="3">
+                                        <MDBTypography tag="dt" className="col-3">
+                                            Brand:
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="9">
+                                        <MDBTypography tag="dd" className="col-9">
+                                            {detailProduct?.brand}
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="3">
+                                        <MDBTypography tag="dt" className="col-3">
+                                            Origin:
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="9">
+                                        <MDBTypography tag="dd" className="col-9">
+                                            {detailProduct?.origin}
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="3">
+                                        <MDBTypography tag="dt" className="col-3">
+                                            Color:
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="9">
+                                        <MDBTypography tag="dd" className="col-9">
+                                            {dataProduct[activeIndex]?.Color?.colorName}
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="3">
+                                        <MDBTypography tag="dt" className="col-3">
+                                            Stock:
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="9">
+                                        <MDBTypography tag="dd" className="col-9">
+                                            {dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.quantity || <div className="textColorRed">Out of Stock</div>}
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="3">
+                                        <MDBTypography tag="dt" className="col-3">
+                                            Price:
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="9">
+                                        <span className="h5 text-danger ">
+                                            {detailProduct?.discountedPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                        </span>
+                                        {detailProduct?.discountedPrice !== detailProduct?.price && <MDBTypography className=" ms-3 fs-5 text fw-light" tag='s'>
+                                            {detailProduct?.price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                        </MDBTypography>}
+                                    </MDBCol>
+                                </MDBRow>
+                                <hr />
+                                <MDBRow className="mb-4">
+                                    <MDBCol md="4" xs="6">
+                                        <label className="mb-2">Size</label>
+                                        <select
+                                            className="form-select border border-secondary"
+                                            value={selectedSizeSelect}  // Giá trị đã chọn từ state hoặc props
+                                            onChange={(e) => handleSizeChange(e.target.value)}
+                                        >
+                                            {dataProduct && dataProduct[activeIndex]?.SizeItems.map((sizeItem, index) => (
+                                                <option key={sizeItem.Size.sizeName} value={index}>
+                                                    {sizeItem.Size.sizeName}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </MDBCol>
+                                    <MDBCol md="4" xs="6" className="mb-3">
+                                        <label className="mb-2 d-block">Quantity</label>
+                                        <InputQuantityDetailProduct
+                                            onValueChange={handleQuantityChange}
+                                            minValue={1}
+                                            selectedSize={selectedSizeSelect}
+                                            activeIndex={activeIndex}
+                                            maxValue={getMaxQuantity(selectedSizeSelect)} // Sử dụng hàm getMaxQuantity để lấy giá trị maxValue
+                                        />
+                                    </MDBCol>
+                                    <div className="mb-3">
+                                        <span className="h6 text-danger">
+                                            {detailProduct?.discountedPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                        </span>
+                                        <span className="mx-2 ">x</span>
+                                        <span className="text-muted">{quantity}</span>
+                                        <span className="mx-2 ">=</span>
+                                        <span className="h5 text-danger">
+                                            {((detailProduct?.discountedPrice || 0) * quantity).toLocaleString('vi-VN', {
+                                                style: 'currency',
+                                                currency: 'VND'
+                                            })}
+                                        </span>
+                                    </div>
+                                </MDBRow>
 
-                        <p>
-                            Modern look and quality demo item is a streetwear-inspired
-                            collection that continues to break away from the conventions of
-                            mainstream fashion. Made in Italy, these black and brown
-                            clothing low-top shirts for men.
-                        </p>
-                        <MDBRow>
-                            <MDBCol size="3">
-                                <MDBTypography tag="dt" className="col-3">
-                                    Type:
-                                </MDBTypography>
-                            </MDBCol>
-                            <MDBCol size="9">
-                                <MDBTypography tag="dd" className="col-9">
-                                    Regular
-                                </MDBTypography>
-                            </MDBCol>
-
-                            <MDBCol size="3">
-                                <MDBTypography tag="dt" className="col-3">
-                                    Color:
-                                </MDBTypography>
-                            </MDBCol>
-                            <MDBCol size="9">
-                                <MDBTypography tag="dd" className="col-9">
-                                    Brown
-                                </MDBTypography>
-                            </MDBCol>
-
-                            <MDBCol size="3">
-                                <MDBTypography tag="dt" className="col-3">
-                                    Material:
-                                </MDBTypography>
-                            </MDBCol>
-                            <MDBCol size="9">
-                                <MDBTypography tag="dd" className="col-9">
-                                    Cotton, Jeans
-                                </MDBTypography>
-                            </MDBCol>
-
-                            <MDBCol size="3">
-                                <MDBTypography tag="dt" className="col-3">
-                                    Brand:
-                                </MDBTypography>
-                            </MDBCol>
-                            <MDBCol size="9">
-                                <MDBTypography tag="dd" className="col-9">
-                                    Reebook
-                                </MDBTypography>
-                            </MDBCol>
-                        </MDBRow>
-
-                        <hr />
-                        <MDBRow className="mb-4">
-                            <MDBCol md="4" xs="6">
-                                <label className="mb-2">Size</label>
-                                <select className="form-select border border-secondary">
-                                    <option>Small</option>
-                                    <option>Medium</option>
-                                    <option>Large</option>
-                                </select>
-                            </MDBCol>
-                            <MDBCol md="4" xs="6" className="mb-3">
-                                <label className="mb-2 d-block">Quantity</label>
-                                <InputQuantityGroup onValueChange={handleQuantityChange} />
-                            </MDBCol>
-                            <div className="mb-3">
-                                <span className="h5 text-danger">75000 đ</span>
-                                <span className="mx-2 ">x</span>
-                                <span className="text-muted">{quantity}</span>
+                                <div className="me-2 d-inline-block">
+                                    <ButtonBuyProduct
+                                        color="danger"
+                                        className="shadow-0"
+                                        disabled={dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.quantity ? false : true}
+                                        onBuyClick={handleBuyClick}
+                                    />
+                                </div>
+                                <ButtonAddCartComponent
+                                    color="warning"
+                                    className="shadow-0 ms-3"
+                                    disabled={dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.quantity ? false : true}
+                                    onAddToCartClick={handleAddToCartClick}
+                                >
+                                    <MDBIcon fas icon="cart-plus" className="me-1" />
+                                    Add to cart
+                                </ButtonAddCartComponent>
                             </div>
-                        </MDBRow>
-                        <MDBBtn color="danger" className="shadow-0 me-2">
-                            Buy now
-                        </MDBBtn>
-                        <MDBBtn color="warning" className="shadow-0">
-                            <MDBIcon fas icon="cart-plus" className="me-1" />
-                            Add to cart
-                        </MDBBtn>
-                    </div>
-                </MDBCol>
-            </MDBRow>
-            <div className="bg-white " style={{ marginTop: '20px' }}>
-                <MDBRow className='p-3'>
-                    <MDBCol lg='4' className="d-flex" style={{ borderRight: '1px solid #ccc' }}>
-                        <div>
-                            <MDBCardImage
-                                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
-                                alt="avatar"
-                                className="rounded-circle"
-                                style={{ width: '100px', height: '100px' }}
-                                fluid />
-                        </div>
-                        <div className="ms-2 d-flex flex-column flex-grow-1">
-                            <MDBTypography tag='h5' className='mb-0'>Name Shop</MDBTypography>
-                            <p><em>active</em></p>
-                            <div className='d-flex justify-content-between'>
-                                <MDBBtn color='primary' className='px-1' style={{ width: '100%' }} >
-                                    <MDBIcon fas icon="comments" className='me-1' />
-                                    Chat Now
-                                </MDBBtn>
-                                <MDBBtn className="ms-1 px-1" onClick={() => navigation('/view-shop')} color='warning' style={{ width: '100%' }}>
-                                    <MDBIcon fas icon="store-alt" className='me-1' />
-                                    View SHop
-                                </MDBBtn>
-                            </div>
-                        </div>
-                    </MDBCol>
-
-                    <MDBCol lg='8'></MDBCol>
-                </MDBRow>
-            </div>
-        </MDBContainer>
+                        </MDBCol>
+                    </MDBRow>}
+            </MDBContainer>
+        </LoadingHasChil>
     );
 }
 

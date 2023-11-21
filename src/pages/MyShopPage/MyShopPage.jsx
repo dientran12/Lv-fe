@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     DesktopOutlined,
     FileOutlined,
@@ -6,53 +6,160 @@ import {
     TeamOutlined,
     UserOutlined,
 } from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
-import { MDBBtn, MDBCardImage, MDBCol, MDBContainer, MDBIcon, MDBRow, MDBTypography } from 'mdb-react-ui-kit';
-const { Header, Content, Footer, Sider } = Layout;
-function getItem(label, key, icon, children) {
-    return {
-        key,
-        icon,
-        children,
-        label,
-    };
-}
+import { Breadcrumb, Layout, Menu, Switch, theme } from 'antd';
+import { MDBBtn, MDBCardImage, MDBCol, MDBContainer, MDBIcon, MDBListGroup, MDBListGroupItem, MDBPopover, MDBPopoverBody, MDBRipple, MDBRow, MDBTypography } from 'mdb-react-ui-kit';
+import { Route, useLocation, useNavigate } from 'react-router-dom';
+import Dashboard from '~/components/Dashboard/Dashboard'
+import Products from '~/components/ProductsOnShop/ProductsOnShop'
+import Order from '~/components/OrderComponent/OrderShop'
+import Settings from '~/components/SettingsComponent/SettingsShop'
+import Discounts from '~/components/DiscountComponent/DiscountShop';
+import * as UserService from '~/services/UserService'
+import { useParams } from 'react-router-dom';
+import SidebarMyShop from '~/components/SidebarComponent/SidebarMyshop';
+import AllProductsComponent from '~/components/AllProductsComponent/AllProductsComponent';
+import AllOrdersComponent from '~/components/AllOrdersComponent/AllOrdersComponent';
+import VersionProduct from '~/components/VersionProductComponent/VersionProduct';
+import CategoryProductComponent from '~/components/CategoryProductComponent/CategoryProductComponent';
+import CreateProductComponent from '~/components/CreateProductComponent/CreateProductComponent';
+import PromotionComponent from '~/components/PromotionComponent/PromotionComponent';
+import { useDispatch, useSelector } from 'react-redux';
+import { resetUser } from '~/redux/slides/userSlide';
+import OrderDetailsComponent from '~/components/OrderDetailsComponent/OrderDetailsComponent';
+import DashboardComponent from '~/components/DashboardComponent/DashboardComponent';
+
+const { Content, Sider } = Layout;
+
 const items = [
-    getItem('Option 1', '1', <PieChartOutlined />),
-    getItem('Option 2', '2', <DesktopOutlined />),
-    getItem('User', 'sub1', <UserOutlined />, [
-        getItem('Tom', '3'),
-        getItem('Bill', '4'),
-        getItem('Alex', '5'),
-    ]),
-    getItem('Team', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
-    getItem('Files', '9', <FileOutlined />),
+    { key: 'dashboard', label: 'Dashboard', icon: <MDBIcon fas icon="chart-line" /> },
+    {
+        key: 'product',
+        label: 'Products',
+        icon: <MDBIcon fas icon="tshirt" />,
+        children: [
+            { key: 'all-products', label: 'Product List' },
+            { key: 'create-product', label: 'Create New Product' },
+            { key: 'product-categories', label: 'Categories' },
+        ],
+    },
+    {
+        key: 'orders', label: 'Orders', icon: <MDBIcon far icon="credit-card" />,
+        children: [
+            { key: 'all-orders', label: 'All Orders' },
+            { key: 'new-orders', label: 'New Orders' },
+            { key: 'confirmed-orders', label: 'Confirmed Orders' },
+            { key: 'paid-orders', label: 'Paid Orders' },
+            { key: 'refunded-orders', label: 'Refunded Orders' },
+            { key: 'cenceled-orders', label: 'Canceled Orders' },
+        ],
+    },
+    { key: 'promotions', label: 'Promotions', icon: <MDBIcon far icon="money-bill-alt" /> },
+    {
+        key: 'setting', label: 'Settings', icon: <MDBIcon fas icon="cogs" />,
+        children: [
+            { key: 'profile', label: 'Profile' },
+            { key: 'info-store', label: 'Store' },
+        ],
+    },
 ];
-const App = () => {
-    const [collapsed, setCollapsed] = useState(false);
+
+const MyShopPage = () => {
+    const { keyFromURL } = useParams();
+    const [keySelected, setKeySelected] = useState(keyFromURL || 'dashboard');
+    const [loading, setLoading] = useState(false)
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+
+
+    const user = useSelector((state) => {
+        return state?.user
+    })
     const {
         token: { colorBgContainer },
     } = theme.useToken();
+    const renderPage = (key) => {
+        console.log('key', key)
+        if (key?.startsWith("details-version-product-")) {
+            const id = key.split("details-version-product-")[1];
+            // Kiểm tra nếu id không phải là số hoặc chuỗi rỗng
+            if (!isNaN(id) && id !== "") {
+                return <VersionProduct id={parseInt(id)} />;
+            }
+        }
+        if (key?.startsWith("all-products-")) {
+            const idCate = key.split("all-products-")[1];
+            if (!isNaN(idCate) && idCate !== "") {
+                return <AllProductsComponent idCate={parseInt(idCate)} />;
+            }
+        }
+        switch (key) {
+            case 'dashboard':
+                return <DashboardComponent />;
+            case 'all-products':
+                return <AllProductsComponent />;
+            case 'product-categories':
+                return <CategoryProductComponent />;
+            case 'create-product':
+                return <CreateProductComponent />;
+            case 'all-orders':
+                return <AllOrdersComponent />
+            case 'order-detail':
+                return <OrderDetailsComponent />
+            case 'promotions':
+                return <PromotionComponent />;
+            case 'settings':
+                return <Settings />;
+            default:
+                return <>No data</>;
+        }
+    }
+
+    useEffect(() => {
+        setKeySelected(keyFromURL)
+    }, [keyFromURL]);
+
+    const contentChildren = (
+        <div className="d-inline-flex  align-items-center " style={{ cursor: 'pointer' }} >
+            <MDBCardImage
+                src={user?.image || "https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"}
+                alt="avatar"
+                className="me-2   rounded-circle "
+                style={{ width: '60px', height: '60px' }}
+                fluid />
+            <MDBTypography tag='dt' className='mb-0 text-light text-uppercase '>{user?.name}</MDBTypography>
+        </div>
+    )
+    const handleLogout = async () => {
+        setLoading(true)
+        console.log('Logout')
+        await UserService.logoutUser()
+        dispatch(resetUser())
+        setLoading(false)
+    }
     return (
         <>
             <div className="bg-main">
                 <MDBContainer>
-
-                    <MDBRow className='p-3'>
-                        <MDBCol lg='4' className="d-flex">
-                            <div>
-                                <MDBCardImage
-                                    src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
-                                    alt="avatar"
-                                    className="rounded-circle"
-                                    style={{ width: '60px', height: '60px' }}
-                                    fluid />
-                            </div>
-                            <div className="ms-2 d-flex flex-column flex-grow-1 justify-content-center">
-                                <MDBTypography tag='h5' className='mb-0 text-light'>Name Shop</MDBTypography>
-                            </div>
+                    <MDBRow className='p-2'>
+                        <MDBCol lg='4' >
+                            <MDBPopover poperStyle={{ marginTop: "2px", boxShadow: "none" }} btnChildren={contentChildren} color='transparent' placement='top' rippleColor='dark' dismiss>
+                                <MDBPopoverBody className='p-2'>
+                                    <MDBListGroup style={{ minWidth: '150px' }} light>
+                                        <MDBRipple>
+                                            <MDBListGroupItem aria-current='true' noBorders className='nameListTitle mb-1 rounded-1' onClick={() => { navigate('/') }} >
+                                                <MDBIcon fas icon="home" className='me-1' />
+                                                Home
+                                            </MDBListGroupItem>
+                                        </MDBRipple>
+                                        <MDBRipple>
+                                            <MDBListGroupItem aria-current='true' onClick={handleLogout} noBorders className='nameListTitle logout textColorRed rounded-1'>
+                                                Log out
+                                            </MDBListGroupItem>
+                                        </MDBRipple>
+                                    </MDBListGroup>
+                                </MDBPopoverBody>
+                            </MDBPopover>
                         </MDBCol>
-
                         <MDBCol lg='8'></MDBCol>
                     </MDBRow>
                 </MDBContainer>
@@ -60,27 +167,31 @@ const App = () => {
             <Layout
                 style={{
                     minHeight: '100vh',
+                    height: '100%',
+                    backgroundColor: '#001529'
                 }}
             >
-                <Sider width={300} collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-                    <div className="demo-logo-vertical" />
-                    <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items} />
-                </Sider>
+                <SidebarMyShop
+                    items={items}
+                    baseUrl="/my-shop"
+                    defaultSelected='dashboard'
+                    onItemSelected={setKeySelected}
+                />
                 <Layout>
                     <Content
                         style={{
-                            margin: '0 16px',
+                            margin: '0 2px',
                         }}
                     >
                         <div
                             style={{
-                                marginTop: '16px',
-                                padding: 24,
+                                marginTop: '4px',
+                                padding: 0,
                                 minHeight: 360,
                                 background: colorBgContainer,
                             }}
                         >
-                            Bill is a cat.
+                            {renderPage(keySelected)}
                         </div>
                     </Content>
                 </Layout>
@@ -88,4 +199,4 @@ const App = () => {
         </>
     );
 };
-export default App;
+export default MyShopPage;

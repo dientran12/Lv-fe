@@ -1,16 +1,17 @@
 import HomePage from "~/pages/HomePage/HomePage";
+import OrderPage from "~/pages/OrderPage/OrderPage";
+import CartPage from "~/pages/CartPage/CartPage";
 import NotFoundPage from "~/pages/NotFoundPage/NotFoundPage";
 import SignInPage from "~/pages/SignInPage/SignInPage";
 import SignUpPage from "~/pages/SignUpPage/SignUpPage";
-import CartPage from "~/pages/CartPage/CartPage";
 import DetailProductPage from "~/pages/DetailProductPage/DetailProductPage";
 import ProfilePage from "~/pages/ProfilePage/ProfilePage";
-import MyShopPage from "~/pages/MyShopPage/MyShopPage";
+import AdminPage from "~/pages/AdminPage/AdminPage";
 import CategoryPage from "~/pages/CategoryPage/CategoryPage";
 import ViewShopPage from "~/pages/ViewShopPage/ViewShopPage";
-
-
-
+import PromotionPage from "~/pages/PromotionPage/PromotionPage";
+import MyShopPage from "~/pages/MyShopPage/MyShopPage";
+import HistoryPage from "~/pages/HistoryPage/HistoryPage";
 
 export const routes = [
     {
@@ -21,20 +22,31 @@ export const routes = [
     {
         path: '/sign-in',
         page: SignInPage,
+
     },
     {
         path: '/sign-up',
         page: SignUpPage,
+
     },
     {
-        path: '/detail-product',
+        path: '/detail-product/:key?',
         page: DetailProductPage,
         isShowHeader: true
     },
-
     {
-        path: '/view-shop',
-        page: ViewShopPage,
+        path: '/history',
+        page: HistoryPage,
+        isShowHeader: true
+    },
+    {
+        path: '/system/admin/:key?',
+        page: AdminPage,
+        isShowHeaderAdmin: true
+    },
+    {
+        path: '/order',
+        page: OrderPage,
         isShowHeader: true
     },
     {
@@ -48,8 +60,18 @@ export const routes = [
         isShowHeader: true
     },
     {
-        path: '/my-shop',
+        path: '/promotion',
+        page: PromotionPage,
+        isShowHeader: true
+    },
+    {
+        path: '/my-shop/:key?/:key?',
         page: MyShopPage
+    },
+    {
+        path: '/view-shop',
+        page: ViewShopPage,
+        isShowHeader: true
     },
     {
         path: '/category',

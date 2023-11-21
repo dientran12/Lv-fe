@@ -4,8 +4,10 @@ import App from '~/App.js';
 import reportWebVitals from './reportWebVitals';
 import { store } from '~/redux/store'
 import { Provider } from 'react-redux'
-import 'mdb-react-ui-kit/dist/css/mdb.min.css';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import '~/assets/scss/index.scss'
 import {
   QueryClient,

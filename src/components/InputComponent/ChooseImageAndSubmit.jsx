@@ -10,7 +10,7 @@ import Loading from '../LoadingComponent/Loading';
 import { getBase64 } from '~/utils';
 
 
-const ChooseImageAndSubmit = ({ nameDataFile }) => {
+const ChooseImageAndSubmit = () => {
     const user = useSelector((state) => state.user)
     const [image, setImage] = useState(user?.image);
     const dispatch = useDispatch();
@@ -26,7 +26,6 @@ const ChooseImageAndSubmit = ({ nameDataFile }) => {
 
     useEffect(() => {
         setImage(user?.image)
-
     }, [user]);
 
     useEffect(() => {
@@ -36,7 +35,7 @@ const ChooseImageAndSubmit = ({ nameDataFile }) => {
                 hideProgressBar: false,
                 closeOnClick: true,
             });
-            handleGetDetailsUser(user?.id, user?.accessToken)
+            handleGetDetailsUser(user?.accessToken)
         } else if (isError) {
             toast.error('Update failed', {
                 autoClose: 1500,
@@ -46,8 +45,8 @@ const ChooseImageAndSubmit = ({ nameDataFile }) => {
         }
     }, [isSuccess, isError])
 
-    const handleGetDetailsUser = async (id, token) => {
-        const response = await UserService.getDetailsUser(id, token)
+    const handleGetDetailsUser = async (token) => {
+        const response = await UserService.getDetailsUser(token)
         dispatch(updateUser({ ...response?.data, accessToken: token }))
         mutation.reset();
     }
