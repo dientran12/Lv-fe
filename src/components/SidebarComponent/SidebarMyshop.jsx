@@ -1,4 +1,3 @@
-import 'rsuite/dist/rsuite.min.css';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Menu } from 'antd';
@@ -16,7 +15,6 @@ const SidebarMyShop = ({ items, baseUrl, onItemSelected, defaultSelected }) => {
             setActiveKey(key);
             onItemSelected(key);
             navigate(`${baseUrl}/${key}`);
-
         }
     };
 
@@ -53,7 +51,7 @@ const SidebarMyShop = ({ items, baseUrl, onItemSelected, defaultSelected }) => {
         let path = currentPath;
         console.log('currentPath', currentPath)
         if (currentPath === "my-shop") {
-            path = "dashboard";
+            path = defaultSelected;
         }
         handleSelectItem(path);
     }, [currentPath, defaultSelected]);
@@ -66,8 +64,8 @@ const SidebarMyShop = ({ items, baseUrl, onItemSelected, defaultSelected }) => {
     }, [location, items, baseUrl]);
 
     return (
-        <div style={{ height: '100%', boxShadow: '1px 1px 2px #ccc', backgroundColor: '#001529' }}>
-            <Sider width={300} collapsible collapsed={expanded} onCollapse={handleToggle}>
+        <div >
+            <Sider style={{ boxShadow: '1px 1px 2px #ccc', height: '100vh' }} width={300} collapsible collapsed={expanded} onCollapse={handleToggle}>
                 <div className="demo-logo-vertical" />
                 <Menu
                     theme="dark"

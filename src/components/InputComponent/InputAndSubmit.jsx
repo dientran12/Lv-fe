@@ -17,7 +17,7 @@ const InputAndSubmit = ({ nameDataFile, type = 'text' }) => {
     const mutation = useCustomMutation(
         (data) => {
             const { id, accessToken, ...rests } = data
-            UserService.updateUser(id, rests, accessToken)
+            UserService.updateUser({ id, rests, accessToken })
         }
     )
 

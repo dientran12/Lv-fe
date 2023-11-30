@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { MDBBtn, MDBCard, MDBCardBody, MDBCardFooter, MDBCardImage, MDBCardText, MDBCol, MDBContainer, MDBIcon, MDBInput, MDBModal, MDBModalBody, MDBModalContent, MDBModalDialog, MDBModalFooter, MDBModalHeader, MDBModalTitle, MDBRow, MDBValidation, MDBValidationItem } from 'mdb-react-ui-kit';
+import { MDBBtn, MDBCard, MDBCardBody, MDBCardFooter, MDBCardImage, MDBCardText, MDBCol, MDBContainer, MDBIcon, MDBInput, MDBModal, MDBModalBody, MDBModalContent, MDBModalDialog, MDBModalFooter, MDBModalHeader, MDBModalTitle, MDBRipple, MDBRow, MDBValidation, MDBValidationItem } from 'mdb-react-ui-kit';
 
 import TableComponent from '../TableComponent/TableComponent';
 import { useSelector } from 'react-redux';
@@ -7,14 +7,16 @@ import Loading from '../LoadingComponent/Loading';
 import { useCustomMutation } from '~/hooks/useMutationHook';
 import * as PromotionService from '~/services/PromotionService'
 import { toast } from 'react-toastify';
-import { Form, Input, Select } from 'antd';
+import { Form, Input } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import LoadingHasChil from '../LoadingComponent/LoadingHasChil';
 import { MaskedInput } from 'rsuite';
-import { SettingOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
 import CardPromotion from '../CardComponent/CardPromotion';
+import ImageUploader from '../InputComponent/ImageUploader';
+import Noimage from '~/assets/images/no-image.jpg';
+
 
 const PromotionComponent = () => {
     const user = useSelector((state) => {
@@ -26,7 +28,7 @@ const PromotionComponent = () => {
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const year = currentDate.getFullYear();
     const currentDateString = `${day}/${month}/${year}`;
-
+    const [imageChoosed, setImageChoosed] = useState(null)
 
     const toggleShow = () => {
         setStaticModal(!staticModal);
@@ -57,31 +59,30 @@ const PromotionComponent = () => {
     const [form] = Form.useForm();
     const onFinish = (values) => {
         // Gọi API khi form đã hợp lệ
-        if (values.start === "") {
-            values.start = currentDateString
-        }
+        console.log('values', values)
         mutationCreate.mutate({
             name: values.name,
-            startDate: values.start,
-            endDate: values.end,
+            limit: values.limit,
+            image: values.image,
             token: user?.accessToken,
             description: values.description,
-            percentage: values.percentage,
+            percent: values.percentage,
         }, {
             onSettled: () => {
                 queryPromotion.refetch()
             }
         });
-        console.log('values', values)
     };
+
+    console.log('id shop', user?.shop_id)
 
     // Get all categories
     const getAllPromotion = async () => {
-        const res = await PromotionService.getAllPromotion()
+        const res = await PromotionService.getAllPromotion({ shopId: user?.shop_id, token: user?.accessToken })
         return res
     }
 
-    const queryPromotion = useQuery({ queryKey: ['Promotions'], queryFn: getAllPromotion })
+    const queryPromotion = useQuery({ queryKey: ['Promotions'], queryFn: getAllPromotion, enabled: !!user?.shop_id })
     const { isLoading: isLoadingCate, data: promotions } = queryPromotion
 
     console.log('promotions', promotions)
@@ -115,7 +116,7 @@ const PromotionComponent = () => {
                 <MDBModal staticBackdrop tabIndex='-1' show={staticModal} setShow={setStaticModal} >
                     <MDBModalDialog size="lg">
                         <MDBModalContent>
-                            <MDBModalHeader>
+                            <MDBModalHeader className='bg-gradient-orange-red'>
                                 <MDBModalTitle>Add New Promotion</MDBModalTitle>
                                 <MDBBtn className='btn-close' color='none' onClick={toggleShow}></MDBBtn>
                             </MDBModalHeader>
@@ -141,6 +142,24 @@ const PromotionComponent = () => {
                                     </MDBRow>
                                     <MDBRow>
                                         <MDBCol sm="2">
+                                            <p style={{ fontSize: '16px' }}>Limit</p>
+                                        </MDBCol>
+                                        <MDBCol sm="10">
+                                            <Form.Item
+                                                name="limit"
+                                                rules={[
+                                                    {
+                                                        required: true,
+                                                        message: 'Please input promotion name!',
+                                                    },
+                                                ]}
+                                            >
+                                                <Input placeholder="Name promotion" size="large" type='number' />
+                                            </Form.Item>
+                                        </MDBCol>
+                                    </MDBRow>
+                                    <MDBRow>
+                                        <MDBCol sm="2">
                                             <p style={{ fontSize: '16px' }}>Discount</p>
                                         </MDBCol>
                                         <MDBCol sm="10">
@@ -153,53 +172,7 @@ const PromotionComponent = () => {
                                                     },
                                                 ]}
                                             >
-                                                <Input placeholder="Promotion Percentage" size="large" addonAfter={<MDBIcon fas icon="percentage" />} />
-                                            </Form.Item>
-                                        </MDBCol>
-                                    </MDBRow>
-                                    <MDBRow>
-                                        <MDBCol sm="2">
-                                            <p style={{ fontSize: '16px' }}>Date Start</p>
-                                        </MDBCol>
-                                        <MDBCol sm="10">
-                                            <Form.Item
-                                                name="start"
-                                                rules={[
-                                                    {
-                                                        pattern: /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/,
-                                                        message: 'Please input a valid start date (DD/MM/YYYY)!',
-                                                    },
-                                                ]}
-                                            >
-                                                <MaskedInput
-                                                    mask={[/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/]}
-                                                    placeholder='DD/MM/YYYY'
-                                                />
-                                            </Form.Item>
-                                        </MDBCol>
-                                    </MDBRow>
-                                    <MDBRow>
-                                        <MDBCol sm="2">
-                                            <p style={{ fontSize: '16px' }}>Date End</p>
-                                        </MDBCol>
-                                        <MDBCol sm="10">
-                                            <Form.Item
-                                                name="end"
-                                                rules={[
-                                                    {
-                                                        pattern: /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/,
-                                                        message: 'Please input a valid end date (DD/MM/YYYY)!',
-                                                    },
-                                                    {
-                                                        required: true,
-                                                        message: 'Please input the end date of the promotion!',
-                                                    },
-                                                ]}
-                                            >
-                                                <MaskedInput
-                                                    mask={[/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/]}
-                                                    placeholder='DD/MM/YYYY'
-                                                />
+                                                <Input placeholder="Promotion Percentage" size="large" addonAfter={<MDBIcon fas icon="percentage" type='number' />} />
                                             </Form.Item>
                                         </MDBCol>
                                     </MDBRow>
@@ -215,10 +188,33 @@ const PromotionComponent = () => {
                                             </Form.Item>
                                         </MDBCol>
                                     </MDBRow>
+                                    <Form.Item
+                                        label="Upload Image"
+                                        name="image"
+                                        getValueFromEvent={(e) => e.fileList}
+                                    >
+                                        <div className="d-flex flex-row align-items-end">
+                                            <MDBRipple rippleTag='a' className="me-3">
+                                                <img
+                                                    src={imageChoosed || Noimage}
+                                                    className='img-fluid'
+                                                    style={{ width: '150px', height: '100px', objectFit: 'cover', aspectRatio: '1/1' }}
+                                                    alt='example'
+                                                />
+                                            </MDBRipple>
+                                            <ImageUploader
+                                                value={form.getFieldValue('image')}
+                                                onImageChange={(newImage) => {
+                                                    form.setFieldsValue({ image: newImage });
+                                                    setImageChoosed(newImage); // Thêm dòng này để gọi hàm setImageChoosed
+                                                }}
+                                            />
+                                        </div>
+                                    </Form.Item>
                                 </div>
                             </MDBModalBody>
                             <MDBModalFooter>
-                                <MDBBtn color='info' style={{ width: '120px' }}>
+                                <MDBBtn color='warning' style={{ width: '120px' }}>
                                     <Loading isLoading={isLoadingCreate}>
                                         Add
                                     </Loading>

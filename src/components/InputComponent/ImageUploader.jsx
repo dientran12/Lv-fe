@@ -34,8 +34,10 @@ const ImageUploader = ({ onImageChange, value }) => {
                 />
                 <div>
                     {/* <MDBIcon fas icon="download" onClick={handleChooseFile} className="me-3 bg-black">New Avatar</MDBIcon> */}
-                    <div className="p-1 bg-hover-green  text-center" style={{ backgroundColor: '#55a0f5', borderRadius: '5px', color: '#fff', fontSize: '14px', cursor: 'pointer' }} onClick={handleChooseFile}  ><MDBIcon fas icon="download" /> Choose image</div>
-
+                    {/* <div className="p-1 bg-hover-green  text-center" style={{ backgroundColor: '#55a0f5', borderRadius: '5px', color: '#fff', fontSize: '14px', cursor: 'pointer' }} onClick={handleChooseFile}  ><MDBIcon fas icon="download" /> Choose image</div> */}
+                    <div className="text-start">
+                        <MDBIcon fas icon="upload" onClick={handleChooseFile} className="px-5 py-2 mt-2 bg-hover-green" style={{ backgroundColor: '#ffd021', borderRadius: '5px', fontSize: '14px', cursor: 'pointer' }} />
+                    </div>
                     {/* Input ẩn để giữ giá trị */}
                     <Input type="hidden" value={image} />
                 </div>

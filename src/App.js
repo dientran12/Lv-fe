@@ -8,11 +8,13 @@ import jwt_decode from "jwt-decode";
 import * as UserService from '~/services/UserService'
 import { updateUser } from './redux/slides/userSlide';
 import { isJsonString } from './utils';
+import * as CateService from '~/services/CateService'
 import 'react-toastify/dist/ReactToastify.css';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import LoadingHasChil from './components/LoadingComponent/LoadingHasChil';
+import { updateCate } from './redux/slides/categorySlide';
 
 
 function App() {
@@ -20,10 +22,21 @@ function App() {
   const [isLoading, setIsLoading] = useState(false)
   const dispatch = useDispatch();
 
+  const fetchCate = async () => {
+    try {
+      const res = await CateService.getAllCate();
+      dispatch(updateCate(res))
+      return res
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      return
+    }
+  };
+
   useEffect(() => {
     setIsLoading(true)
+    fetchCate()
     let storageData = localStorage.getItem('accessToken')
-    console.log("localStorage", storageData)
     storageData = JSON.parse(storageData)
     handleGetDetailsUser(storageData)
     setIsLoading(false)
@@ -32,10 +45,14 @@ function App() {
 
 
   const handleGetDetailsUser = async (token) => {
-    const response = await UserService.getDetailsUser(token)
-    console.log("response", response)
-    // dispatch(updateUser({ ...response?.data }))
-    dispatch(updateUser({ ...response?.user, accessToken: token }))
+    try {
+      const response = await UserService.getDetailsUser(token)
+      // dispatch(updateUser({ ...response?.data }))
+      dispatch(updateUser({ ...response, accessToken: token }))
+    } catch (error) {
+      console.log(error)
+    }
+
     setIsLoading(false)
   }
 

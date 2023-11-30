@@ -18,7 +18,7 @@ import ChooseImageAndSubmit from '~/components/InputComponent/ChooseImageAndSubm
 import { useSelector } from 'react-redux';
 import Loading from '~/components/LoadingComponent/Loading';
 
-export default function ProfilePage() {
+export default function EditInfoShop() {
     const user = useSelector((state) => state.user)
     const [avatar, setAvatar] = useState(user?.avatar);
     const [name, setName] = useState(user?.username);
@@ -48,25 +48,23 @@ export default function ProfilePage() {
                     <MDBCol lg="4">
                         <MDBCard className="mb-4" >
                             <MDBCardBody className="text-center" style={{ height: "300px" }}>
-                                <div style={{ minHeight: '150px' }}>
-                                    <Loading isLoading={loading}>
-                                        {avatar ?
-                                            <MDBCardImage
-                                                src={avatar}
-                                                alt="avatar"
-                                                className="rounded-circle"
-                                                style={{ width: '150px', height: '150px' }}
-                                                fluid />
-                                            :
-                                            <MDBCardImage
-                                                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
-                                                alt="avatar"
-                                                className="rounded-circle"
-                                                style={{ width: '150px', height: '150px' }}
-                                                fluid />
-                                        }
-                                    </Loading>
-                                </div>
+                                <Loading isLoading={loading}>
+                                    {avatar ?
+                                        <MDBCardImage
+                                            src={avatar}
+                                            alt="avatar"
+                                            className="rounded-circle"
+                                            style={{ width: '150px', height: '150px' }}
+                                            fluid />
+                                        :
+                                        <MDBCardImage
+                                            src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                                            alt="avatar"
+                                            className="rounded-circle"
+                                            style={{ width: '150px', height: '150px' }}
+                                            fluid />
+                                    }
+                                </Loading>
                                 <div className="d-flex justify-content-center mb-2 mt-5">
                                     <ChooseImageAndSubmit />
                                 </div>

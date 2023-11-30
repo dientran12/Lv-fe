@@ -17,13 +17,13 @@ export default function CardProductHome({ product }) {
     const navigate = useNavigate()
     return (
         <div className="d-flex justify-content-center w-100">
-            <MDBCard className='cardHover ' style={{ width: '100%', maxWidth: "300px", minHeight: '350px' }} >
+            <MDBCard className='cardHover ' style={{ width: '100%', maxWidth: "300px" }} >
                 <MDBRipple rippleTag='a' className='bg-image hover-zoom'>
                     <img
                         src={product?.image || 'https://cdn2.yame.vn/pimg/ao-thun-co-tron-toi-gian-m20-0021275/96b9c802-a685-0100-92af-0019afaf3031.jpg?w=540&h=756'}
                         className='img-fluid rounded'
                         position='top'
-                        style={{ width: '100%', height: '250px', objectFit: 'cover' }}
+                        style={{ width: '100%', height: 'auto', objectFit: 'cover', aspectRatio: '1/1' }}
                         alt='thumbnail'
                     />
                 </MDBRipple>
@@ -40,7 +40,7 @@ export default function CardProductHome({ product }) {
                         }
                     </div>
                 </MDBCardBody>
-                <MDBCardFooter className='d-flex justify-content-center'>
+                <MDBCardFooter className='d-flex justify-content-center p-1'>
                     <MDBRow className='w-75 '>
                         <MDBBtn color='dark' className='p-2 bg-hover-red' onClick={() => navigate(`/detail-product/${product?.id}`)}>Details</MDBBtn>
                     </MDBRow>

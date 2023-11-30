@@ -18,6 +18,10 @@ import ButtonAddCartComponent from '~/components/ButtonComponent/ButtonAddCartCo
 import * as ProductService from '~/services/ProductService'
 import LoadingHasChil from '~/components/LoadingComponent/LoadingHasChil';
 import InputQuantityDetailProduct from '~/components/InputComponent/InputQuantityDetailProduct';
+import InfoStatusShopComponet from '~/components/InfoStatusShopComponent/InfoStatusShopComponet';
+import Noimage from '~/assets/images/no-image.jpg';
+import ErrorImage from '~/assets/images/image-error.jpg';
+import { formatCurrencyUSD } from '~/utils';
 
 
 function DetailProductPage() {
@@ -33,8 +37,8 @@ function DetailProductPage() {
     };
 
     const getMaxQuantity = (sizeId) => {
-        let selectedSizeItem = dataProduct && dataProduct[activeIndex]?.SizeItems[sizeId];
-        return selectedSizeItem ? selectedSizeItem.quantity : 1;
+        // let selectedSizeItem = dataProduct && dataProduct[activeIndex]?.SizeItems[sizeId];
+        // return selectedSizeItem ? selectedSizeItem.quantity : 1;
     };
 
     const handleQuantityChange = (newValue) => {
@@ -43,16 +47,18 @@ function DetailProductPage() {
 
     const fetchGetDetailsProduct = async (id) => {
         const res = await ProductService.getDetailProduct(id)
+
         setDetailProduct({
             id: id,
             name: res?.name,
+            image: res?.image,
             price: res?.price,
             brand: res?.brand,
             gender: res?.gender,
             origin: res?.origin,
-            categories: res?.Categories,
+            discountId: res?.discount_id,
             discountedPrice: res?.discountedPrice || res?.price,
-            listVersions: res?.Versions,
+            versions: res?.versions,
             type: res?.type,
             description: res?.description
         })
@@ -63,7 +69,7 @@ function DetailProductPage() {
     useEffect(() => {
         fetchGetDetailsProduct(key.key);
     }, [key]);
-    const dataProduct = detailProduct?.listVersions
+    const listVersion = detailProduct?.versions
 
 
     const handleSlideChange = (swiper) => {
@@ -71,47 +77,23 @@ function DetailProductPage() {
     };
 
     console.log('item active', activeIndex)
-    console.log('detailProduct?.listVersions', detailProduct?.listVersions)
+    console.log('listVersion', listVersion)
 
     const handleBuyClick = () => {
-        // Xử lý khi người dùng nhấn mua
-        console.log('Size đã chọn:', dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.Size.sizeName);
-        console.log('Số lượng đã chọn:', quantity);
-        return [{
-            versionId: dataProduct[activeIndex]?.id,
-            total: quantity,
-            sellingPrice: detailProduct?.discountedPrice,
-            price: detailProduct?.price,
-            image: dataProduct[activeIndex]?.image,
-            sizeItems: [{
-                sizeName: dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.Size.sizeName,
-                sizeItemId: dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.id,
-                quantity: quantity
-            },]
-        }]
-        // return [{ sizeItemId: dataProduct[activeIndex]?.SizeItems[selectedSizeSelect].id, quantity: quantity }]
-
-        // Thực hiện các xử lý khác nếu cần
     };
 
     const handleAddToCartClick = () => {
-        // Xử lý khi người dùng nhấn thêm vào giỏ hàng
-        console.log('Size đã chọn:', dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.Size.sizeName);
-        console.log('Size đã chọn:', dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]);
-        // console.log('Số lượng đã chọn:', quantity);
-        const dataAdd = { sizeItem: dataProduct[activeIndex]?.SizeItems[selectedSizeSelect], quantity: quantity }
-        return dataAdd
         // Thực hiện các xử lý khác nếu cần
     };
 
     return (
         <LoadingHasChil isLoading={isLoading}>
-            <MDBContainer className="">
+            <MDBContainer className="mb-4">
                 <div className=" pt-3 px-5 titleMyCartContent bg-white mb-4">
                     Details Product
                     <hr className="my-3 pb-4" />
                 </div>
-                {dataProduct &&
+                {listVersion &&
                     <MDBRow className="">
                         <MDBCol lg="6" >
                             <div className="bg-white">
@@ -127,9 +109,12 @@ function DetailProductPage() {
                                     onSlideChange={handleSlideChange}
                                     className="mySwiper2"
                                 >
-                                    {dataProduct?.map((version) => (
+                                    <SwiperSlide>
+                                        <img src={detailProduct?.image || ErrorImage} alt={`Slide ${detailProduct?.id}`} style={{ width: '100%', height: 'auto', aspectRatio: '1/1', objectFit: 'contain' }} />
+                                    </SwiperSlide>
+                                    {listVersion?.map((version) => (
                                         <SwiperSlide key={version.id}>
-                                            <img src={version.image} alt={`Slide ${version.id}`} style={{ width: '100%', height: 'auto', aspectRatio: '1/1', objectFit: 'contain' }} />
+                                            <img src={version.image || ErrorImage} alt={`Slide ${version.id}`} style={{ width: '100%', height: 'auto', aspectRatio: '1/1', objectFit: 'contain' }} />
                                         </SwiperSlide>
                                     ))}
                                 </Swiper>
@@ -138,15 +123,18 @@ function DetailProductPage() {
                                     onSwiper={setThumbsSwiper}
                                     loop={true}
                                     spaceBetween={10}
-                                    slidesPerView={dataProduct.length > 4 ? dataProduct.length : 4}
+                                    slidesPerView={listVersion.length > 4 ? listVersion.length : 4}
                                     freeMode={true}
                                     watchSlidesProgress={true}
                                     modules={[FreeMode, Navigation, Thumbs]}
                                     className="mySwiper"
                                 >
-                                    {dataProduct?.map((version) => (
+                                    <SwiperSlide>
+                                        <img className="p-2" src={detailProduct?.image || ErrorImage} alt={`Thumbnail ${detailProduct?.id}`} style={{ width: '100%', height: 'auto', aspectRatio: '1/1' }} />
+                                    </SwiperSlide>
+                                    {listVersion?.map((version) => (
                                         <SwiperSlide key={version.id}>
-                                            <img className="p-2" src={version.image} alt={`Thumbnail ${version.id}`} style={{ width: '100%', height: 'auto', aspectRatio: '1/1' }} />
+                                            <img className="p-2" src={version.image || ErrorImage} alt={`Thumbnail ${version.id}`} style={{ width: '100%', height: 'auto', aspectRatio: '1/1' }} />
                                         </SwiperSlide>
                                     ))}
                                 </Swiper>
@@ -198,17 +186,11 @@ function DetailProductPage() {
                                     </MDBCol>
                                     <MDBCol size="9">
                                         <MDBTypography tag="dd" className="col-9">
-                                            {dataProduct[activeIndex]?.Color?.colorName}
-                                        </MDBTypography>
-                                    </MDBCol>
-                                    <MDBCol size="3">
-                                        <MDBTypography tag="dt" className="col-3">
-                                            Stock:
-                                        </MDBTypography>
-                                    </MDBCol>
-                                    <MDBCol size="9">
-                                        <MDBTypography tag="dd" className="col-9">
-                                            {dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.quantity || <div className="textColorRed">Out of Stock</div>}
+                                            {activeIndex !== 0 ?
+                                                listVersion[activeIndex - 1]?.color
+                                                :
+                                                listVersion[activeIndex]?.color
+                                            }
                                         </MDBTypography>
                                     </MDBCol>
                                     <MDBCol size="3">
@@ -218,10 +200,10 @@ function DetailProductPage() {
                                     </MDBCol>
                                     <MDBCol size="9">
                                         <span className="h5 text-danger ">
-                                            {detailProduct?.discountedPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                            {formatCurrencyUSD(detailProduct?.discountedPrice)}
                                         </span>
-                                        {detailProduct?.discountedPrice !== detailProduct?.price && <MDBTypography className=" ms-3 fs-5 text fw-light" tag='s'>
-                                            {detailProduct?.price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                        {detailProduct?.discountId && <MDBTypography className=" ms-3 fs-5 text fw-light" tag='s'>
+                                            {formatCurrencyUSD(detailProduct?.price)}
                                         </MDBTypography>}
                                     </MDBCol>
                                 </MDBRow>
@@ -234,7 +216,7 @@ function DetailProductPage() {
                                             value={selectedSizeSelect}  // Giá trị đã chọn từ state hoặc props
                                             onChange={(e) => handleSizeChange(e.target.value)}
                                         >
-                                            {dataProduct && dataProduct[activeIndex]?.SizeItems.map((sizeItem, index) => (
+                                            {listVersion && listVersion[activeIndex]?.sizes.map((sizeItem, index) => (
                                                 <option key={sizeItem.Size.sizeName} value={index}>
                                                     {sizeItem.Size.sizeName}
                                                 </option>
@@ -267,27 +249,11 @@ function DetailProductPage() {
                                     </div>
                                 </MDBRow>
 
-                                <div className="me-2 d-inline-block">
-                                    <ButtonBuyProduct
-                                        color="danger"
-                                        className="shadow-0"
-                                        disabled={dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.quantity ? false : true}
-                                        onBuyClick={handleBuyClick}
-                                    />
-                                </div>
-                                <ButtonAddCartComponent
-                                    color="warning"
-                                    className="shadow-0 ms-3"
-                                    disabled={dataProduct[activeIndex]?.SizeItems[selectedSizeSelect]?.quantity ? false : true}
-                                    onAddToCartClick={handleAddToCartClick}
-                                >
-                                    <MDBIcon fas icon="cart-plus" className="me-1" />
-                                    Add to cart
-                                </ButtonAddCartComponent>
                             </div>
                         </MDBCol>
                     </MDBRow>}
             </MDBContainer>
+            <InfoStatusShopComponet shopId={detailProduct?.shop_id} />
         </LoadingHasChil>
     );
 }

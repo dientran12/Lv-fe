@@ -12,20 +12,20 @@ import { getBase64 } from '~/utils';
 
 const ChooseImageAndSubmit = () => {
     const user = useSelector((state) => state.user)
-    const [image, setImage] = useState(user?.image);
+    const [image, setImage] = useState(user?.avatar);
     const dispatch = useDispatch();
     const fileInputRef = useRef(null);
 
     const mutation = useCustomMutation(
         (data) => {
-            const { id, accessToken, ...rests } = data
-            UserService.updateUser(id, rests, accessToken)
+            const { accessToken, avatar } = data
+            UserService.updateUser({ avatar, accessToken })
         }
     )
     const { data, isLoading, isSuccess, isError } = mutation;
 
     useEffect(() => {
-        setImage(user?.image)
+        setImage(user?.avatar)
     }, [user]);
 
     useEffect(() => {
@@ -62,7 +62,7 @@ const ChooseImageAndSubmit = () => {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const imageURL = event.target.result;
-                dispatch(updateUser({ ...user, image: imageURL }))
+                dispatch(updateUser({ ...user, avatar: imageURL }))
             };
             reader.readAsDataURL(file);
             let base64 = await getBase64(file);
@@ -72,7 +72,7 @@ const ChooseImageAndSubmit = () => {
 
     const handleUpdate = () => {
         if (image) {
-            mutation.mutate({ id: user?.id, image: image, accessToken: user?.accessToken });
+            mutation.mutate({ avatar: image, accessToken: user?.accessToken });
         }
     }
 

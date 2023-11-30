@@ -37,7 +37,7 @@ const InputSearch = () => {
     }, []);
 
     return (
-        <>
+        <div style={{ position: 'relative' }}>
             <MDBInputGroup tag="form">
                 <input
                     className='form-control'
@@ -54,7 +54,7 @@ const InputSearch = () => {
 
             {/* Suggestions */}
             {showSuggestions && (
-                <div className="suggestions-container " style={{ backgroundColor: "white", minHeight: 200 }}>
+                <div className="suggestions-container " style={{ backgroundColor: "white", minHeight: 200, transition: "0.25s", position: "absolute", width: "100%" }}>
                     Render your suggestions and search history here
                     {/* For example, you can map through an array of suggestions and display them */}
                     {/* <ul>
@@ -64,7 +64,7 @@ const InputSearch = () => {
           </ul> */}
                 </div>
             )}
-        </>
+        </div>
     );
 };
 

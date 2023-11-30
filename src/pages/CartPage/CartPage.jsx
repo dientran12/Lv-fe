@@ -116,24 +116,24 @@ export default function CartPage() {
 
     return (
         <div className="" style={{ backgroundColor: "#eee" }}>
+            <MDBContainer className=" ">
+                <div className=" pt-3 px-5 titleMyCartContent bg-white mb-4">
+                    Cart
+                    <hr className="my-3 pb-4" />
+                </div>
+                {cartItems && cartItems?.map((item, index) => (
+                    <CardProductCart
+                        key={index}
+                        index={index}
+                        item={item}
+                        isChecked={checkedItems[index]}
+                        onCheckboxChange={handleCheckboxChange}
+                        onQuantityChange={handleQuantityChange}
+                        queryCartItems={queryCartItems}
+                    />
+                ))}
+            </MDBContainer>
             {cartItems && <>
-                <MDBContainer className=" ">
-                    <div className=" pt-3 px-5 titleMyCartContent bg-white mb-4">
-                        Cart
-                        <hr className="my-3 pb-4" />
-                    </div>
-                    {cartItems && cartItems?.map((item, index) => (
-                        <CardProductCart
-                            key={index}
-                            index={index}
-                            item={item}
-                            isChecked={checkedItems[index]}
-                            onCheckboxChange={handleCheckboxChange}
-                            onQuantityChange={handleQuantityChange}
-                            queryCartItems={queryCartItems}
-                        />
-                    ))}
-                </MDBContainer>
                 <div className={`fixed-bottom bg-white h-25 ${checkedItemsCount > 0 ? 'show' : ''}`}>
                     <MDBContainer>
                         <MDBRow className="my-5">

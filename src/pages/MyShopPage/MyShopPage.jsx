@@ -1,32 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import {
-    DesktopOutlined,
-    FileOutlined,
-    PieChartOutlined,
-    TeamOutlined,
-    UserOutlined,
-} from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, Switch, theme } from 'antd';
 import { MDBBtn, MDBCardImage, MDBCol, MDBContainer, MDBIcon, MDBListGroup, MDBListGroupItem, MDBPopover, MDBPopoverBody, MDBRipple, MDBRow, MDBTypography } from 'mdb-react-ui-kit';
 import { Route, useLocation, useNavigate } from 'react-router-dom';
-import Dashboard from '~/components/Dashboard/Dashboard'
-import Products from '~/components/ProductsOnShop/ProductsOnShop'
-import Order from '~/components/OrderComponent/OrderShop'
-import Settings from '~/components/SettingsComponent/SettingsShop'
-import Discounts from '~/components/DiscountComponent/DiscountShop';
-import * as UserService from '~/services/UserService'
+import * as CateService from '~/services/CateService'
 import { useParams } from 'react-router-dom';
 import SidebarMyShop from '~/components/SidebarComponent/SidebarMyshop';
 import AllProductsComponent from '~/components/AllProductsComponent/AllProductsComponent';
 import AllOrdersComponent from '~/components/AllOrdersComponent/AllOrdersComponent';
 import VersionProduct from '~/components/VersionProductComponent/VersionProduct';
-import CategoryProductComponent from '~/components/CategoryProductComponent/CategoryProductComponent';
 import CreateProductComponent from '~/components/CreateProductComponent/CreateProductComponent';
 import PromotionComponent from '~/components/PromotionComponent/PromotionComponent';
 import { useDispatch, useSelector } from 'react-redux';
 import { resetUser } from '~/redux/slides/userSlide';
 import OrderDetailsComponent from '~/components/OrderDetailsComponent/OrderDetailsComponent';
 import DashboardComponent from '~/components/DashboardComponent/DashboardComponent';
+import ProfileShopComponent from '~/components/ProfileShopComponent/ProfileShopComponent';
+import EditInfoShop from '~/components/ProfileShopComponent/EditInfoShop';
+import { updateCate } from '~/redux/slides/categorySlide';
 
 const { Content, Sider } = Layout;
 
@@ -39,7 +29,10 @@ const items = [
         children: [
             { key: 'all-products', label: 'Product List' },
             { key: 'create-product', label: 'Create New Product' },
-            { key: 'product-categories', label: 'Categories' },
+            {
+                key: 'product-categories', label: 'Categories', icon: <MDBIcon fas icon="align-justify" />,
+                children: [],
+            },
         ],
     },
     {
@@ -57,19 +50,53 @@ const items = [
     {
         key: 'setting', label: 'Settings', icon: <MDBIcon fas icon="cogs" />,
         children: [
-            { key: 'profile', label: 'Profile' },
-            { key: 'info-store', label: 'Store' },
+            { key: 'view-shop', label: 'Store' },
+            { key: 'edit-info', label: 'Profile' },
         ],
     },
 ];
-
 const MyShopPage = () => {
+
     const { keyFromURL } = useParams();
+    const listCate = useSelector((state) => {
+        return state?.category?.listCate
+    })
     const [keySelected, setKeySelected] = useState(keyFromURL || 'dashboard');
     const [loading, setLoading] = useState(false)
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const fetchCate = async () => {
+        try {
+            const res = await CateService.getAllCate();
+            dispatch(updateCate(res))
+            return res
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            return
+        }
+    };
 
+    useEffect(() => {
+        fetchCate()
+    }, []);
+
+    if (listCate?.length > 0) {
+        // Tìm phần tử có key là 'product'
+        const productItem = items.find(item => item.key === 'product');
+
+        // Nếu tìm thấy 'product', tiếp tục tìm 'product-categories' trong children của nó
+        if (productItem) {
+            const categoryItem = productItem.children.find(child => child.key === 'product-categories');
+
+            // Cập nhật children cho 'product-categories'
+            if (categoryItem) {
+                categoryItem.children = listCate.map((category) => ({
+                    key: `all-products-cate-${category?.id}`,
+                    label: category?.name, // Sửa từ name thành label nếu bạn muốn hiển thị tên danh mục
+                }));
+            }
+        }
+    }
 
     const user = useSelector((state) => {
         return state?.user
@@ -86,19 +113,23 @@ const MyShopPage = () => {
                 return <VersionProduct id={parseInt(id)} />;
             }
         }
-        if (key?.startsWith("all-products-")) {
-            const idCate = key.split("all-products-")[1];
-            if (!isNaN(idCate) && idCate !== "") {
-                return <AllProductsComponent idCate={parseInt(idCate)} />;
+
+        if (key.startsWith("all-products-")) {
+            const page = key.split("all-products-")[1];
+            console.log('route', page)
+            if (page !== "") {
+                // const page = route.split("-")[0];
+                // const id = route.split("-")[1];
+                console.log('page', page)
+                return <AllProductsComponent page={page} />;
             }
         }
+
         switch (key) {
             case 'dashboard':
                 return <DashboardComponent />;
             case 'all-products':
                 return <AllProductsComponent />;
-            case 'product-categories':
-                return <CategoryProductComponent />;
             case 'create-product':
                 return <CreateProductComponent />;
             case 'all-orders':
@@ -107,15 +138,19 @@ const MyShopPage = () => {
                 return <OrderDetailsComponent />
             case 'promotions':
                 return <PromotionComponent />;
-            case 'settings':
-                return <Settings />;
+            case 'edit-info':
+                return < EditInfoShop />;
+            case 'view-shop':
+                return <ProfileShopComponent />;
             default:
                 return <>No data</>;
         }
     }
 
     useEffect(() => {
-        setKeySelected(keyFromURL)
+        if (keyFromURL) {
+            setKeySelected(keyFromURL);
+        }
     }, [keyFromURL]);
 
     const contentChildren = (
@@ -132,9 +167,10 @@ const MyShopPage = () => {
     const handleLogout = async () => {
         setLoading(true)
         console.log('Logout')
-        await UserService.logoutUser()
+        localStorage.removeItem('accessToken');
         dispatch(resetUser())
         setLoading(false)
+        navigate('/')
     }
     return (
         <>
@@ -152,7 +188,7 @@ const MyShopPage = () => {
                                             </MDBListGroupItem>
                                         </MDBRipple>
                                         <MDBRipple>
-                                            <MDBListGroupItem aria-current='true' onClick={handleLogout} noBorders className='nameListTitle logout textColorRed rounded-1'>
+                                            <MDBListGroupItem aria-current='true' onClick={handleLogout} noBorders className='nameListTitle  text-center logout textColorRed rounded-1'>
                                                 Log out
                                             </MDBListGroupItem>
                                         </MDBRipple>
@@ -164,7 +200,7 @@ const MyShopPage = () => {
                     </MDBRow>
                 </MDBContainer>
             </div>
-            <Layout
+            {listCate.length > 0 && <Layout
                 style={{
                     minHeight: '100vh',
                     height: '100%',
@@ -187,7 +223,7 @@ const MyShopPage = () => {
                             style={{
                                 marginTop: '4px',
                                 padding: 0,
-                                minHeight: 360,
+                                minHeight: '100vh',
                                 background: colorBgContainer,
                             }}
                         >
@@ -195,7 +231,7 @@ const MyShopPage = () => {
                         </div>
                     </Content>
                 </Layout>
-            </Layout>
+            </Layout>}
         </>
     );
 };

@@ -27,6 +27,13 @@ export const formatCurrency = (amount) => {
     }).format(amount);
 };
 
+export const formatCurrencyUSD = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+    }).format(amount);
+};
+
 export const renderOptions = (arr) => {
     let results = [];
     if (arr) {

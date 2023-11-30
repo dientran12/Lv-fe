@@ -5,7 +5,7 @@ const initialState = {
     username: '',
     email: '',
     phone: '',
-    image: '',
+    avatar: '',
     shop_id: null,
     role: "customer",
     id: '',
@@ -17,15 +17,14 @@ const userSlide = createSlice({
     initialState,
     reducers: {
         updateUser: (state, action) => {
-            console.log("action", action);
-            const { username, role, shop_id, name, email, accessToken, phone, image, id } = action.payload
+            const { username, role, shop_id, name, email, accessToken, phone, avatar, id } = action.payload
             state.name = name
             state.username = username
             state.email = email
             state.phone = phone || ''
             state.id = id
             state.role = role
-            state.image = image
+            state.avatar = avatar
             state.shop_id = shop_id
             state.accessToken = accessToken
         },
@@ -36,7 +35,7 @@ const userSlide = createSlice({
             state.phone = ''
             state.id = ''
             state.role = 'customer'
-            state.image = ''
+            state.avatar = ''
             state.shop_id = ''
             state.accessToken = ''
         },

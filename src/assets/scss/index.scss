@@ -205,6 +205,15 @@ html {
     }
 }
 
+.bg-hover-green {
+    transition: .25s;
+
+    &:hover {
+        background-color: $success-color !important;
+    }
+}
+
+
 .bg-gradient {
     background: linear-gradient(to right, #0000FF, #800080) !important;
     color: #fff !important;
@@ -240,7 +249,7 @@ html {
 
 .titleMyCartContent {
     font-size: 32px;
-    // font-weight: bold;
+    font-weight: bold;
     opacity: 0.8;
 }
 
@@ -294,6 +303,10 @@ html {
     display: none;
 }
 
+.tox-statusbar__path {
+    display: none !important;
+}
+
 .tox-notification.tox-notification--in.tox-notification--warning {
     display: none;
 }
@@ -306,4 +319,23 @@ html {
 .slick-next:before {
     padding: 100px 2px;
     color: black;
+}
+
+// xu ly sidebar
+
+.sidenav-small {
+    width: 56px;
+    /* hoặc giá trị mong muốn */
+    transition: width 0.3s ease;
+    /* Thêm transition cho hiệu ứng mượt mà */
+    z-index: 1000;
+
+}
+
+.sidenav-expanded {
+    width: 300px;
+    /* hoặc giá trị mong muốn */
+    transition: width 0.3s ease;
+    /* Thêm transition cho hiệu ứng mượt mà */
+    z-index: 1000;
 }

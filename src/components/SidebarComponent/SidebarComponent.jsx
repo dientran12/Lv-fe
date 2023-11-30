@@ -7,6 +7,7 @@ const SidebarAdmin = ({ items, baseUrl, onItemSelected, defaultSelected }) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [expanded, setExpanded] = useState(windowWidth >= 1000);
     const [activeKey, setActiveKey] = useState(items[0].eventKey);
+    const [sidenavPosition, setSidenavPosition] = useState("static");
     const navigate = useNavigate();
 
     const handleSelectItem = (eventKey) => {
@@ -24,9 +25,11 @@ const SidebarAdmin = ({ items, baseUrl, onItemSelected, defaultSelected }) => {
         const newWidth = window.innerWidth;
         setWindowWidth(newWidth);
 
-        if (newWidth >= 1000) {
+        if (newWidth >= 1000 && sidenavPosition !== "static") {
+            setSidenavPosition("static");
             setExpanded(true);
-        } else if (newWidth < 1000 && expanded) {
+        } else if (newWidth < 1000 && sidenavPosition !== "absolute") {
+            setSidenavPosition("absolute");
             setExpanded(false);
         }
     };
@@ -42,26 +45,29 @@ const SidebarAdmin = ({ items, baseUrl, onItemSelected, defaultSelected }) => {
     const location = useLocation();
     const currentPath = location.pathname.split('/').pop();
 
-    useEffect(() => {
-        let path = currentPath;
-        if (currentPath === "admin") {
-            path = defaultSelected;
-        }
-        handleSelectItem(path);
-    }, [currentPath, defaultSelected]);
+    // useEffect(() => {
+    //     let path = currentPath;
+    //     if (currentPath === "admin") {
+    //         path = defaultSelected;
+    //     }
+    //     handleSelectItem(path);
+    // }, [currentPath, defaultSelected]);
 
-    useEffect(() => {
-        const matchingItem = items.find(item => `${baseUrl}/${item.eventKey}` === location.pathname);
-        if (matchingItem) {
-            setActiveKey(matchingItem.eventKey);
-        }
-    }, [location, items, baseUrl]);
+    // useEffect(() => {
+    //     const matchingItem = items.find(item => `${baseUrl}/${item.eventKey}` === location.pathname);
+    //     if (matchingItem) {
+    //         setActiveKey(matchingItem.eventKey);
+    //     }
+    // }, [location, items, baseUrl]);
 
     return (
-        <div style={{ height: '100vh', boxShadow: '1px 1px 2px #ccc', backgroundColor: 'white' }}>
-            <Sidenav expanded={expanded} defaultOpenKeys={[defaultSelected]} style={{ width: expanded ? "300px" : "56px" }}>
+        <div style={{ minWidth: 56, position: 'relative' }}>
+            <Sidenav expanded={expanded}
+                defaultOpenKeys={[defaultSelected]}
+                className={expanded ? "sidenav-expanded" : "sidenav-small"}
+                style={{ boxShadow: '1px 1px 2px #ccc', backgroundColor: 'white', position: sidenavPosition }}>
                 <Sidenav.Toggle onToggle={handleToggle} />
-                <Sidenav.Body>
+                <Sidenav.Body style={{ paddingBottom: "100%" }}>
                     <Nav activeKey={activeKey} onSelect={handleSelectItem}>
                         {items.map(item => (
                             item.children ? (
@@ -81,7 +87,7 @@ const SidebarAdmin = ({ items, baseUrl, onItemSelected, defaultSelected }) => {
                     </Nav>
                 </Sidenav.Body>
             </Sidenav>
-        </div>
+        </div >
     );
 };
 

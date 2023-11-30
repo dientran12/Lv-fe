@@ -92,7 +92,6 @@ const AdminUser = () => {
     }
 
     const getAllUsers = async (data) => {
-        console.log('user.accessToken', user?.accessToken)
         const res = await UserService.getAllUser(user?.accessToken)
         return res
     }

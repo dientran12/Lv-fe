@@ -1,16 +1,16 @@
 import axios from "axios"
 import { axiosJWT } from "./UserService"
 
-export const getAllVersions = async (productId) => {
-    const res = await axios.get(`${process.env.REACT_APP_API_URL_BACKEND}/version/get-all-version/${productId}`)
+export const getAllVersions = async ({ productId, accessToken }) => {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL_BACKEND}/versions/${productId}`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+    })
     return res.data
 }
 
-export const createVersion = async ({ token, ...data }) => {
-    const res = await axios.post(`${process.env.REACT_APP_API_URL_BACKEND}/version/create`, data, {
-        headers: {
-            token: `Beare ${token}`
-        }
+export const createVersion = async ({ productId, accessToken, ...data }) => {
+    const res = await axios.post(`${process.env.REACT_APP_API_URL_BACKEND}/versions/createVersion/${productId}`, data, {
+        headers: { Authorization: `Bearer ${accessToken}` }
     })
     return res.data
 }
@@ -37,21 +37,3 @@ export const deleteVersion = async (id, token) => {
     })
     return res.data
 }
-
-export const getAllProductOnCate = async (id) => {
-    const res = await axios.get(`${process.env.REACT_APP_API_URL_BACKEND}/category/get-by-category/${id}`)
-    return res.data
-}
-
-export const getProductType = async ({ type, page = 1, limit = 6 }) => {
-    if (type) {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL_BACKEND}/category/get-all/?filter=type&filter=${type}&limit=${limit}&page=${page}`)
-        return res.data
-    }
-}
-
-export const getAllTypeProduct = async () => {
-    const res = await axios.get(`${process.env.REACT_APP_API_URL_BACKEND}/product/get-all-type`, {})
-    return res.data
-}
-

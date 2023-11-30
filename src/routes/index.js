@@ -6,12 +6,12 @@ import SignInPage from "~/pages/SignInPage/SignInPage";
 import SignUpPage from "~/pages/SignUpPage/SignUpPage";
 import DetailProductPage from "~/pages/DetailProductPage/DetailProductPage";
 import ProfilePage from "~/pages/ProfilePage/ProfilePage";
-import AdminPage from "~/pages/AdminPage/AdminPage";
 import CategoryPage from "~/pages/CategoryPage/CategoryPage";
 import ViewShopPage from "~/pages/ViewShopPage/ViewShopPage";
 import PromotionPage from "~/pages/PromotionPage/PromotionPage";
 import MyShopPage from "~/pages/MyShopPage/MyShopPage";
 import HistoryPage from "~/pages/HistoryPage/HistoryPage";
+import RegisterPage from "~/pages/RegisterPage/RegisterPage";
 
 export const routes = [
     {
@@ -40,9 +40,8 @@ export const routes = [
         isShowHeader: true
     },
     {
-        path: '/system/admin/:key?',
-        page: AdminPage,
-        isShowHeaderAdmin: true
+        path: '/register',
+        page: RegisterPage,
     },
     {
         path: '/order',

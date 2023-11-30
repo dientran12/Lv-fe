@@ -11,7 +11,9 @@ import {
     MDBIcon,
     MDBModalBody,
     MDBRow,
-    MDBCol
+    MDBCol,
+    MDBCardImage,
+    MDBRipple
 } from 'mdb-react-ui-kit';
 import ModalComponent from '../ModalComponent/ModalComponent';
 import { Form, Input } from 'antd';
@@ -20,7 +22,8 @@ import { toast } from 'react-toastify';
 import ModalDeleteComponent from '../ModalComponent/ModalDeleteComponent';
 import { useNavigate } from 'react-router-dom';
 import TextArea from 'antd/es/input/TextArea';
-import { MaskedInput } from 'rsuite';
+import Noimage from '~/assets/images/no-image.jpg';
+
 
 const CardPromotion = ({ dataItem, token = "", query = "" }) => {
     const [openModalDelete, setOpenModalDelete] = useState(false)
@@ -28,6 +31,8 @@ const CardPromotion = ({ dataItem, token = "", query = "" }) => {
     const displayName = dataItem?.name?.length > maxLength ? `${dataItem?.name.substring(0, maxLength)}...` : dataItem?.name;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [form] = Form.useForm();
+
+    console.log('dataItem', dataItem)
 
     const handleCancel = () => {
         form.resetFields();
@@ -39,6 +44,7 @@ const CardPromotion = ({ dataItem, token = "", query = "" }) => {
     };
 
     const handleDeleteProduct = () => {
+        console.log('delete product is', dataItem?.id)
         mutationDeleted.mutate({ id: dataItem?.id, token: token }, {
             onSettled: () => {
                 query.refetch()
@@ -48,46 +54,12 @@ const CardPromotion = ({ dataItem, token = "", query = "" }) => {
     }
 
     const mutationDeleted = useCustomMutation(
-        (data) => {
-            const { id,
-                token
-            } = data
-            const res = PromotionService.deletePromotion(
-                id,
-                token
-            )
-            return res
-        }
+        (data) => PromotionService.deletePromotion(data)
     )
 
-    const mutation = useCustomMutation(
-        (data) => {
-            const res = PromotionService.updatePromotion(
-                data
-            )
-            return res
-        }
-    )
 
-    const { data, isLoading, isSuccess, isError } = mutation;
     const { isLoading: isLoadingDelete, isSuccess: isSuccessDelete, isError: isErrorDelete } = mutationDeleted;
 
-    useEffect(() => {
-        if (isSuccess) {
-            toast.success('Saved successfully', {
-                autoClose: 1500,
-                hideProgressBar: false,
-                closeOnClick: true,
-            });
-        } else if (isError) {
-            toast.error('Saved failed', {
-                autoClose: 1500,
-                hideProgressBar: false,
-                closeOnClick: true,
-            });
-            mutation.reset();
-        }
-    }, [isSuccess, isError])
 
     useEffect(() => {
         if (isSuccessDelete) {
@@ -102,7 +74,7 @@ const CardPromotion = ({ dataItem, token = "", query = "" }) => {
                 hideProgressBar: false,
                 closeOnClick: true,
             });
-            mutation.reset();
+            mutationDeleted.reset();
         }
     }, [isSuccessDelete, isErrorDelete])
 
@@ -115,31 +87,6 @@ const CardPromotion = ({ dataItem, token = "", query = "" }) => {
         },
     };
 
-    const handleSubmitEdit = () => {
-        form.validateFields().then((values) => {
-            console.log('values', values)
-            mutation.mutate({
-                id: dataItem?.id,
-                endDate: values?.endDate,
-                startDate: values?.startDate,
-                percentage: values?.percentage,
-                name: values.name,
-                description: values.description,
-                token: token
-            }, {
-                onSettled: () => {
-                    query.refetch();
-                }
-            });
-            // Sau khi gọi mutation, bạn có thể thực hiện các xử lý khác nếu cần
-            form.resetFields();
-            setIsModalOpen(false);
-        }
-        ).catch(errorInfo => {
-            console.log('Validation failed:', errorInfo);
-        });
-    };
-
     const navigate = useNavigate()
     const handleShowListProducts = () => {
         navigate(`/my-shop/all-products-promotion-${dataItem?.id}`)
@@ -149,20 +96,14 @@ const CardPromotion = ({ dataItem, token = "", query = "" }) => {
         <div>
             <MDBCard alignment='center'>
                 <MDBCardHeader className='bg-gradient-orange-red text-uppercase fs-6'>{displayName}</MDBCardHeader>
-                <MDBCardBody className='p-2' style={{ minHeight: 150 }}>
-                    <MDBRow >
-                        <MDBCol size='6'>
-                            <p className='textColorRed mb-0'>Start Date</p>
-                            {dataItem.startDate}
-                        </MDBCol>
-                        <MDBCol size='6'>
-                            <p className='textColorRed mb-0'>End Date</p>
-                            {dataItem.endDate}
-                        </MDBCol>
-                    </MDBRow>
-                    <MDBCardText className='text-start mb-0'>Percentage: {dataItem?.percentage}%</MDBCardText>
-                    <MDBCardText className='text-start m-0'>Description: {dataItem?.description}</MDBCardText>
-                </MDBCardBody>
+                <MDBRipple rippleTag='a' className='bg-image hover-zoom' style={{ borderRadius: '0' }}>
+                    <img
+                        src={dataItem?.image || Noimage}
+                        className=''
+                        style={{ width: '100%', height: 'auto', objectFit: 'cover', aspectRatio: '2/1', opacity: '0.9' }}
+                        alt='example'
+                    />
+                </MDBRipple>
                 <MDBCardFooter className="d-flex justify-content-center bg-grey">
                     <div className='d-flex justify-content-around w-75'>
                         <MDBIcon fas icon="edit" style={{ color: '#007bff', fontSize: '24px', cursor: 'pointer' }} onClick={showModal} />
@@ -179,93 +120,80 @@ const CardPromotion = ({ dataItem, token = "", query = "" }) => {
                 initialValues={{ name: dataItem?.name, percentage: dataItem?.percentage, startDate: dataItem?.startDate, endDate: dataItem?.endDate, description: dataItem?.description }}
             >
                 <ModalComponent
-                    size="sm" title="Edit Promotion"
-                    nameBtnSub='Save Changes'
+                    size="lg" title="Edit Promotion"
                     isOpen={isModalOpen}
-                    onOke={handleSubmitEdit}
                     onClose={handleCancel}
                 >
-                    <MDBModalBody className='d-flex justify-content-center'>
-                        <div className='w-100'>
-                            <MDBRow>
-                                <Form.Item
-                                    name="name"
-                                    label="Promotion name "
-                                    rules={[
-                                        {
-                                            required: true,
-                                        },
-                                    ]}
-                                >
-                                    <Input size="large" placeholder="Name promotion" />
-                                </Form.Item>
-                            </MDBRow>
-                            <MDBRow>
-                                <Form.Item
-                                    label="Discount"
-                                    name="percentage"
-                                    rules={[
-                                        {
-                                            pattern: /^(100|\d{1,2}(\.\d*)?)$/,
-                                            message: 'Please input a valid percentage value between 0 and 100!',
-                                        },
-                                    ]}
-                                >
-                                    <Input size="large" addonAfter={<MDBIcon fas icon="percentage" />} />
-                                </Form.Item>
-                            </MDBRow>
-                            <MDBRow>
-                                <Form.Item
-                                    name="startDate"
-                                    label="Start Date "
-                                    rules={[
-                                        {
-                                            pattern: /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/,
-                                            message: 'Please input a valid start date (DD/MM/YYYY)!',
-                                        },
-                                    ]}
-                                >
-                                    {/* <Input size="large" placeholder="Name promotion" onChange={(e) => setPromotionStart(e.target.value)} /> */}
-                                    <MaskedInput
-                                        mask={[/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/]}
-                                        placeholder='DD/MM/YYYY'
-                                    >
-                                    </MaskedInput>
-                                </Form.Item>
-                            </MDBRow>
-                            <MDBRow>
-                                <Form.Item
-                                    name="endDate"
-                                    label="End Date"
-                                    rules={[
-                                        {
-                                            pattern: /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/,
-                                            message: 'Please input a valid end date (DD/MM/YYYY)!',
-                                        },
-                                    ]}
-                                >
-                                    {/* <Input size="large" placeholder="Name promotion" onChange={(e) => setPromotionEnd(e.target.value)} /> */}
-                                    <MaskedInput
-                                        mask={[/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/]}
-                                        placeholder='DD/MM/YYYY'
-                                    />
-                                </Form.Item>
-                            </MDBRow>
-                            <MDBRow>
-                                <Form.Item
-                                    name="description"
-                                    label="Description"
-                                >
-                                    <TextArea placeholder="Discription" size="large" />
-                                </Form.Item>
-                            </MDBRow>
+                    <MDBModalBody >
+                        <MDBRow >
+                            <MDBCol lg="4">
+                                <div style={{ height: '100%' }}>
+                                    <MDBCardBody className="text-center" >
+                                        {dataItem?.image ?
+                                            <MDBCardImage
+                                                src={dataItem?.image}
+                                                alt="promotion image"
+                                                style={{ width: '300px', height: '150px' }}
+                                                fluid />
+                                            :
+                                            <MDBCardImage
+                                                src={Noimage}
+                                                alt="promotion image"
+                                                style={{ width: '300px', height: '150px' }}
+                                                fluid />
+                                        }
+                                    </MDBCardBody>
+                                </div>
+                            </MDBCol>
+                            <MDBCol lg="8">
+                                <div className="mb-4" style={{ height: '100%' }}>
+                                    <MDBCardBody>
+                                        <MDBRow>
+                                            <MDBCol sm="3">
+                                                <MDBCardText>Name</MDBCardText>
+                                            </MDBCol>
+                                            <MDBCol sm="9">
+                                                <MDBCardText>{dataItem?.name}</MDBCardText>
+                                            </MDBCol>
+                                        </MDBRow>
+                                        <hr />
+                                        <MDBRow>
+                                            <MDBCol sm="3">
+                                                <MDBCardText>Limit</MDBCardText>
+                                            </MDBCol>
+                                            <MDBCol sm="9">
+                                                <MDBCardText className="text-danger">{dataItem?.limit}</MDBCardText>
+                                            </MDBCol>
+                                        </MDBRow>
+                                        <hr />
+                                        <MDBRow>
+                                            <MDBCol sm="3">
+                                                <MDBCardText>Prercent</MDBCardText>
+                                            </MDBCol>
+                                            <MDBCol sm="9">
+                                                {dataItem?.percent}
+                                            </MDBCol>
+                                        </MDBRow>
+                                        <hr />
+                                        <MDBRow>
+                                            <MDBCol sm="3">
+                                                <MDBCardText>Description</MDBCardText>
+                                            </MDBCol>
+                                            <MDBCol sm="9">
+                                                <MDBCardText>{dataItem?.description}</MDBCardText>
+                                            </MDBCol>
+                                        </MDBRow>
+                                        <hr />
+                                    </MDBCardBody>
+                                </div>
 
-                        </div>
+                            </MDBCol>
+                        </MDBRow>
                     </MDBModalBody>
                 </ModalComponent>
             </Form>
             <ModalDeleteComponent size="xs" title="Delete Product" isOpen={openModalDelete} onOke={handleDeleteProduct} onClose={() => setOpenModalDelete(false)}>
-                <div>Are you sure you want to delete the category "<span className='text-danger'>{dataItem?.name}</span>"?</div>
+                <div>Are you sure you want to delete the promotion "<span className='text-danger'>{dataItem?.name}</span>"?</div>
             </ModalDeleteComponent>
         </div >
     );

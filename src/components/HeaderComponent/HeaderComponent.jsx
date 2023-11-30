@@ -23,6 +23,8 @@ import { resetUser } from '~/redux/slides/userSlide';
 // import ModalComponent from '../ModalComponent/ModalComponent';
 import LoadingHasChil from '../LoadingComponent/LoadingHasChil';
 import { Button, Modal } from 'rsuite';
+import Hourglass2Icon from '@rsuite/icons/legacy/Hourglass2';
+
 
 
 const HeaderComponent = () => {
@@ -43,7 +45,6 @@ const HeaderComponent = () => {
         setLoading(false)
     }, [user?.name])
 
-    console.log('user', user)
     const contentChildren = (
         <div style={{ display: 'inline-block' }}>
             <LoadingHasChil isLoading={loading} color='#54b4d3'>
@@ -51,20 +52,55 @@ const HeaderComponent = () => {
             </LoadingHasChil>
         </div>
     )
+    const handleRegister = async () => {
+        navigate('/register')
+        setIsModalStateShop(false)
+    }
 
     const contentCustomerViewModal = (
         <div>
-            <MDBIcon fas icon="exclamation-triangle" />
-            <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
-                You currently have not registered a shop. Would you like to create your own shop and become our collaborator?
-            </div>
+            <h2 className="fw-bold mb-0">
+                <MDBIcon
+                    fas
+                    icon="exclamation-triangle"
+                    className="me-3"
+                    style={{ color: '#ff6219' }}
+                    size="xl"
+                />
+                You currently have not registered a shop!</h2>
+            <h5 className="fw-normal my-4 pb-3" style={{ letterSpacing: '1px' }}>
+                Would you like to create your own shop and become our collaborator?
+            </h5>
             <Modal.Footer>
-                <Button color="orange" appearance="primary">
-                    Oke
+                <Button color="orange" onClick={handleRegister} appearance="primary">
+                    Register now
                 </Button>
-                <Button appearance="subtle">
+                <Button appearance="subtle" onClick={() => setIsModalStateShop(false)}>
                     Cancel
                 </Button>
+            </Modal.Footer>
+        </div>
+    )
+
+    const contentPandingViewModal = (
+        <div>
+            <h2 className="fw-bold mb-0" >
+                <MDBIcon
+                    fas
+                    icon="hourglass-half"
+                    className="me-3"
+                    color="success"
+                    size="xl"
+                />
+                Profile is being reviewed
+            </h2>
+            <h5 className="fw-normal my-4 pb-3" style={{ letterSpacing: '1px' }}>
+                Your shop creation request has been submitted earlier.<br /> Please wait and come back later.
+            </h5>
+            <Modal.Footer>
+                <MDBBtn appearance="subtle" onClick={() => setIsModalStateShop(false)} color="dark">
+                    Cancel
+                </MDBBtn>
             </Modal.Footer>
         </div>
     )
@@ -74,31 +110,29 @@ const HeaderComponent = () => {
             navigate('/my-shop')
             return
         }
-        setIsModalStateShop(true)
         if (user?.role === "customer") {
             setModalContent(contentCustomerViewModal)
         }
-        if (user?.role === 'spending') {
-
+        if (user?.role === 'pending') {
+            setModalContent(contentPandingViewModal)
         }
+        setIsModalStateShop(true)
     }
     const handleLogout = async () => {
         setLoading(true)
         console.log('Logout')
-        await UserService.logoutUser()
+        localStorage.removeItem('accessToken');
         dispatch(resetUser())
         setLoading(false)
     }
-    const handleRegister = async () => {
-        navigate('/sign-in')
-    }
+
 
     return (
         <>
             <div className="p-2 text-dark my-header" >
                 <MDBContainer className='d-flex' style={{ height: '100%' }}>
                     <div className='flex-shrink-0' style={{ fontSize: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'white', width: "200px" }}>
-                        <div><MDBIcon fas icon="trash-alt" /> DaDi</div>
+                        <div> DaDi</div>
                     </div>
                     <div className="flex-grow-1 d-flex flex-column">
                         <div className='d-flex mb-2'>
@@ -118,13 +152,11 @@ const HeaderComponent = () => {
                                                             <MDBIcon fas icon="user-alt" className='pe-1' />  Views Profile
                                                         </MDBListGroupItem>
                                                     </MDBRipple>
-                                                    {user?.role === "customer" &&
-                                                        <MDBRipple>
-                                                            <MDBListGroupItem aria-current='true' onClick={() => navigate('/history')} noBorders className='nameListTitle mb-1 rounded-1'>
-                                                                <MDBIcon fas icon="history" className='pe-1' /> Order History
-                                                            </MDBListGroupItem>
-                                                        </MDBRipple>
-                                                    }
+                                                    <MDBRipple>
+                                                        <MDBListGroupItem aria-current='true' onClick={() => navigate('/history')} noBorders className='nameListTitle mb-1 rounded-1'>
+                                                            <MDBIcon fas icon="history" className='pe-1' /> Order History
+                                                        </MDBListGroupItem>
+                                                    </MDBRipple>
                                                     <MDBRipple>
                                                         <MDBListGroupItem aria-current='true' onClick={handleViewYourShop} noBorders className='nameListTitle mb-1 rounded-1'>
                                                             <MDBIcon fas icon="store" className='pe-1' /> Your Shop
@@ -162,18 +194,7 @@ const HeaderComponent = () => {
             </div>
             <Modal backdrop="static" open={isModalStateShop} onClose={() => setIsModalStateShop(false)} >
                 <div>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
-                        <MDBIcon fas icon="exclamation-triangle" size="xl" className='me-2' style={{ color: "#ebd104" }} />
-                        You currently have not registered a shop. Would you like to create your own shop and become our collaborator?
-                    </div>
-                    <Modal.Footer>
-                        <Button color="orange" appearance="primary">
-                            Register now
-                        </Button>
-                        <Button appearance="subtle" onClick={() => setIsModalStateShop(false)}>
-                            Cancel
-                        </Button>
-                    </Modal.Footer>
+                    {modalContent}
                 </div>
             </Modal>
             <MDBContainer>

@@ -1,5 +1,5 @@
 import { Badge, Form, Input, Select } from 'antd';
-import { MDBBtn, MDBCard, MDBCardBody, MDBCardText, MDBCol, MDBContainer, MDBRow } from 'mdb-react-ui-kit'
+import { MDBBtn, MDBCard, MDBCardBody, MDBCardText, MDBCol, MDBContainer, MDBRipple, MDBRow } from 'mdb-react-ui-kit'
 import React, { useEffect, useState } from 'react'
 import InputSelectAndAddNew from '../InputComponent/InputSelectAndAddNew';
 import { useCustomMutation } from '~/hooks/useMutationHook'
@@ -8,37 +8,23 @@ import * as CateService from '~/services/CateService'
 import Loading from '../LoadingComponent/Loading';
 import { toast } from 'react-toastify';
 import InputSelectTagPickerComponent from '../InputComponent/InputSelectTagPickerComponent';
+import { useSelector } from 'react-redux';
+import ImageUploader from '../InputComponent/ImageUploader';
+import Noimage from '~/assets/images/no-image.jpg';
+
 
 const CreateProductComponent = () => {
-    const [listCate, setListCate] = useState([]);
-    const [listType, setListType] = useState([]);
-    const [listBrand, setListBrand] = useState([]);
-    const [listOrigin, setListOrigin] = useState([]);
+    const [imageChoosed, setImageChoosed] = useState(null)
+
+    const user = useSelector((state) => {
+        return state?.user
+    })
+    const listCate = useSelector((state) => {
+        return state?.category?.listCate
+    })
     const [selectedCategory, setSelectedCategory] = useState([]);
     const mutation = useCustomMutation(
-        (data) => {
-            const { name,
-                price,
-                description,
-                brand,
-                type,
-                origin,
-                categoryIds,
-                gender,
-            } = data
-            // console.log('data', data)
-            const res = ProductService.createProduct({
-                name,
-                price,
-                description,
-                origin,
-                type,
-                gender,
-                categoryIds,
-                brand,
-            })
-            return res
-        }
+        (data) => ProductService.createProduct(data)
     )
     const { data, isLoading, isSuccess, isError } = mutation;
 
@@ -48,63 +34,17 @@ const CreateProductComponent = () => {
         console.log('Form categoryIds', categoryIds);
         mutation.mutate({
             name: values.name,
+            image: values.image,
             brand: values.brand,
             origin: values.origin,
             type: values.type,
             price: values.price,
             description: values.description,
             categoryIds: categoryIds,
-            gender: values.gender
+            gender: values.gender,
+            accessToken: user?.accessToken
         });
     };
-
-    useEffect(() => {
-        const fetchCate = async () => {
-            try {
-                const res = await CateService.getAllCate();
-                if (res && res.categories) {
-                    setListCate(res.categories);
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
-        const fetchOrigin = async () => {
-            try {
-                const res = await ProductService.getAllOrigin();
-                if (res && res.types) {
-                    setListOrigin(res.types);
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
-        const fetchType = async () => {
-            try {
-                const res = await ProductService.getAllType();
-                if (res && res.types) {
-                    setListType(res.types);
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
-        const fetchBrand = async () => {
-            try {
-                const res = await ProductService.getAllBrand();
-                if (res && res.types) {
-                    setListBrand(res.types);
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
-        fetchType()
-        fetchOrigin()
-        fetchBrand()
-        fetchCate()
-    }, []);
-    console.log('List Type', listType);
     useEffect(() => {
         if (isSuccess) {
             toast.success('Product created successfully', {
@@ -143,7 +83,7 @@ const CreateProductComponent = () => {
         },
     };
     const optionsCate = listCate?.map(item => ({
-        label: item.categoryName,
+        label: item.name,
         value: item.id.toString(), // Chuyển id về kiểu string (nếu cần)
     }));
     const [form] = Form.useForm();
@@ -185,13 +125,7 @@ const CreateProductComponent = () => {
                             },
                         ]}
                     >
-                        <InputSelectAndAddNew
-                            label="Type"
-                            initialOptions={listType}
-                            value={form.getFieldValue('type')}
-                            placeholder="Type"
-                            onChange={value => form.setFieldsValue({ type: value })}
-                        />
+                        <Input size="large" placeholder="Product Type" />
                     </Form.Item>
                     <Form.Item
                         name="brand"
@@ -203,23 +137,13 @@ const CreateProductComponent = () => {
                             },
                         ]}
                     >
-                        <InputSelectAndAddNew
-                            label="Brand"
-                            initialOptions={listBrand}
-                            value={form.getFieldValue('brand')}
-                            placeholder="Brand"
-                            onChange={value => form.setFieldsValue({ brand: value })} />
+                        <Input size="large" placeholder="Brand" />
                     </Form.Item>
                     <Form.Item
                         name="origin"
                         label="Origin"
                     >
-                        <InputSelectAndAddNew
-                            label="Origin"
-                            initialOptions={listOrigin}
-                            value={form.getFieldValue('origin')}
-                            placeholder="Origin"
-                            onChange={value => form.setFieldsValue({ origin: value })} />
+                        <Input size="large" placeholder="Origin" />
                     </Form.Item>
                     <Form.Item
                         name="categories"
@@ -247,7 +171,7 @@ const CreateProductComponent = () => {
                         <Select placeholder="select your gender" size="large">
                             <Select.Option value="male">Male</Select.Option>
                             <Select.Option value="female">Female</Select.Option>
-                            <Select.Option value="uniset">Uniset</Select.Option>
+                            <Select.Option value="unisex">Unisex</Select.Option>
                         </Select>
                     </Form.Item>
                     <Form.Item
@@ -255,13 +179,6 @@ const CreateProductComponent = () => {
                         label="Description"
                     >
                         <Input.TextArea size="large" placeholder="Description" />
-                    </Form.Item>
-                    <Form.Item
-                        name="importPrice"
-                        label="Import Price"
-
-                    >
-                        <Input size="large" placeholder="Import Price" />
                     </Form.Item>
                     <Form.Item
                         name="price"
@@ -274,6 +191,29 @@ const CreateProductComponent = () => {
                         ]}
                     >
                         <Input size="large" placeholder="Selling Price" />
+                    </Form.Item>
+                    <Form.Item
+                        label="Upload Image"
+                        name="image"
+                        getValueFromEvent={(e) => e.fileList}
+                    >
+                        <div className="d-flex flex-row align-items-end">
+                            <MDBRipple rippleTag='a' className="me-3">
+                                <img
+                                    src={imageChoosed || Noimage}
+                                    className='img-fluid rounded'
+                                    style={{ width: '100px', height: 'auto', objectFit: 'cover', aspectRatio: '1/1' }}
+                                    alt='example'
+                                />
+                            </MDBRipple>
+                            <ImageUploader
+                                value={form.getFieldValue('image')}
+                                onImageChange={(newImage) => {
+                                    form.setFieldsValue({ image: newImage });
+                                    setImageChoosed(newImage); // Thêm dòng này để gọi hàm setImageChoosed
+                                }}
+                            />
+                        </div>
                     </Form.Item>
                     <Form.Item className='d-flex justify-content-center mt-5'>
                         <MDBBtn color='info' style={{ width: '200px' }} type="submit">

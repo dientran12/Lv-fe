@@ -1,25 +1,28 @@
 import { MDBBtn, MDBCardImage, MDBCol, MDBContainer, MDBIcon, MDBRow, MDBTypography } from 'mdb-react-ui-kit'
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import CardProductHome from '~/components/CardComponent/CardProductHome';
 import SidebarComponent from '~/components/SidebarComponent/SidebarComponent';
+import RetentionIcon from '@rsuite/icons/legacy/Retention';
+import StarIcon from '@rsuite/icons/legacy/Star';
+import FireIcon from '@rsuite/icons/legacy/Fire';
+import PercentIcon from '@rsuite/icons/legacy/Percent';
 
 const ViewShopPage = () => {
-
-    function getItem(label, key, icon, children) {
-        return {
-            key,
-            icon,
-            children,
-            label,
-        };
-    }
-
+    const [key, setKey] = useState(null);
     const items = [
-        getItem('Home', '1', <MDBIcon fas icon="home" />),
-        getItem('All Products', '2'),
-        getItem('Team', 'sub1', null, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
-        getItem('Files', '9'),
+        {
+            eventKey: 'allproduct', name: 'All Products', icon: <RetentionIcon />
+        },
+        {
+            eventKey: 'newproduct', name: 'New Product', icon: <StarIcon />
+        },
+        {
+            eventKey: 'topseller', name: 'Best Seller', icon: <FireIcon />
+        },
+        {
+            eventKey: 'onsale', name: 'On Sale', icon: <PercentIcon />
+        },
     ];
 
     const dataProduct = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
@@ -53,19 +56,22 @@ const ViewShopPage = () => {
                                 </div>
                             </div>
                         </MDBCol>
-
                         <MDBCol lg='8'></MDBCol>
                     </MDBRow>
                 </MDBContainer>
-                <hr></hr>
             </div>
-            <MDBContainer className='mt-4 d-flex'>
-                <SidebarComponent items={items} />
+            <MDBContainer className=' d-flex'>
+                <SidebarComponent
+                    items={items} // Thay IconComponent bằng biểu tượng mong muốn
+                    baseUrl="/" // Cần cung cấp baseUrl dựa trên các route của bạn
+                    onItemSelected={setKey} // Viết hàm xử lý khi chọn danh mục
+                />
+
                 <div className="ms-2 flex-grow-1">
                     <MDBRow>
                         {dataProduct.map((item, index) => (
                             <MDBCol className='mb-3' key={index} xl="3" lg="4" md="6">
-                                <CardProductHome />
+                                {/* <CardProductHome /> */}
                             </MDBCol>
                         ))}
                     </MDBRow>

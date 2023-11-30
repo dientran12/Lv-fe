@@ -13,7 +13,7 @@ import {
 } from 'mdb-react-ui-kit';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 const NavbarHeader = () => {
-    const menuList = [{ name: "Category", path: "category" }, { name: "Promotion", path: "#" }]
+    const menuList = [{ name: "Category", path: "category" }, { name: "Shirts", path: "#" }, { name: "Hats", path: "#" }, { name: "Shoes", path: "#" }, { name: "Promotion", path: "#" }, { name: "News", path: "#" }]
     const navigation = useNavigate();
     const location = useLocation(); // Sử dụng hook này
     const handleNavigateToHome = () => {
@@ -29,7 +29,7 @@ const NavbarHeader = () => {
                             Home
                         </MDBBtn>
                         {menuList.map((menuItem, index) => (
-                            <MDBBtn className={`name-tab-nav ${location.pathname.includes(menuItem.name.toLowerCase()) ? 'active-tab' : ''}`} onClick={() => navigation(`/${menuItem.path}`)} key={index} color='dark'>{menuItem.name}</MDBBtn>
+                            <MDBBtn className={`name-tab-nav me-2 ${location.pathname.includes(menuItem.name.toLowerCase()) ? 'active-tab' : ''}`} onClick={() => navigation(`/${menuItem.path}`)} key={index} color='dark'>{menuItem.name}</MDBBtn>
                         ))}
                     </div>
                 </MDBContainer>
