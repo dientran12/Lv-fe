@@ -11,6 +11,7 @@ import ViewShopPage from "~/pages/ViewShopPage/ViewShopPage";
 import PromotionPage from "~/pages/PromotionPage/PromotionPage";
 import MyShopPage from "~/pages/MyShopPage/MyShopPage";
 import HistoryPage from "~/pages/HistoryPage/HistoryPage";
+import PaymentPage from "~/pages/PaymentPage/PaymentPage";
 import RegisterPage from "~/pages/RegisterPage/RegisterPage";
 
 export const routes = [
@@ -37,6 +38,11 @@ export const routes = [
     {
         path: '/history',
         page: HistoryPage,
+        isShowHeader: true
+    },
+    {
+        path: '/payment',
+        page: PaymentPage,
         isShowHeader: true
     },
     {

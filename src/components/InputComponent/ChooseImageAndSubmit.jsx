@@ -43,12 +43,12 @@ const ChooseImageAndSubmit = () => {
                 closeOnClick: true,
             });
         }
+        mutation.reset();
     }, [isSuccess, isError])
 
     const handleGetDetailsUser = async (token) => {
         const response = await UserService.getDetailsUser(token)
         dispatch(updateUser({ ...response?.data, accessToken: token }))
-        mutation.reset();
     }
 
     const handleChooseFile = () => {

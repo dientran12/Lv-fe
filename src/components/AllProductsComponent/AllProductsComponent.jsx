@@ -77,7 +77,7 @@ const AllProductsComponent = ({ page = "" }) => {
 
     const fetchPromotions = async () => {
         try {
-            const res = await PromotionService.getAllPromotion();
+            const res = await PromotionService.getAllPromotion({ shopId: user?.shop_id, token: user.accessToken });
             console.log("list promottion", res)
             if (res) {
                 setListPromotion(res)
@@ -95,13 +95,6 @@ const AllProductsComponent = ({ page = "" }) => {
     const refreshData = () => {
         queryProduct.refetch();
     }
-
-    // useEffect(() => {
-    //     if (user && user.shop_id) {
-    //         setIsUserUpdated(true); // Cập nhật trạng thái khi user được cập nhật
-    //     }
-
-    // }, [user]);
 
     useEffect(() => {
         refreshData(); // Gọi hàm này khi người dùng quay lại từ Category
@@ -149,22 +142,25 @@ const AllProductsComponent = ({ page = "" }) => {
     const [form] = Form.useForm();
 
     const handleShowDetailsProduct = async (id) => {
+        setImageChoosed(null)
         setDrawerVisible(true);
         setIsLoadingUpdate(true);
         const details = await fetchGetDetailsProduct(id);
         setStateProductDetails(details);
         if (details?.categories) {
             const listSelected = details.categories?.map(item => ({
-                label: item.categoryName,
+                label: item.name,
                 value: item.id.toString(), // Chuyển id về kiểu string (nếu cần)
             }));
             setSelectedCategory(listSelected);
         }
     };
 
+    console.log("listPromotion", listPromotion)
+    console.log("listCate", listPromotion)
+
     const fetchGetDetailsProduct = async (id) => {
         const res = await ProductService.getDetailProduct(id)
-        console.log("res detail product", res)
         if (res) {
             setIsLoadingUpdate(false)
             return {
@@ -193,6 +189,7 @@ const AllProductsComponent = ({ page = "" }) => {
         {
             title: "ID",
             dataIndex: 'id',
+            sorter: (a, b) => a.id - b.id,
         },
         {
             title: "Name",
@@ -212,7 +209,6 @@ const AllProductsComponent = ({ page = "" }) => {
         {
             title: "Price",
             dataIndex: 'price',
-            sorter: (a, b) => a.price - b.price,
         },
         {
             title: "Gender",
@@ -221,6 +217,7 @@ const AllProductsComponent = ({ page = "" }) => {
         {
             title: "Total",
             dataIndex: 'total',
+            sorter: (a, b) => a.total - b.total,
         },
         {
             title: "Action",
@@ -249,14 +246,15 @@ const AllProductsComponent = ({ page = "" }) => {
     };
 
     const onFinish = (values) => {
-        console.log("values", values);
+        const categoryIds = values?.categories?.map(category => category?.id ? category.id : category);
+        console.log("values", { ...values, categories: categoryIds });
         mutation.mutate({
             id: stateProductDetails?.id,
             name: values.name,
             brand: values.brand,
             image: values.image,
             origin: values.origin,
-            categoryIds: values.categories,
+            categoryIds: categoryIds,
             type: values.type,
             price: values.price,
             description: values.description,
@@ -281,11 +279,11 @@ const AllProductsComponent = ({ page = "" }) => {
     }
 
     const handleSubmitDisc = () => {
-        const promotionId = listPromotion[selectedPromotionIndex]?.id
-        console.log("idPromotion", promotionId)
+        const discountId = listPromotion[selectedPromotionIndex]?.id
+        console.log("idPromotion", discountId)
         console.log("productId", stateProductPromotion?.id)
         mutationAddDiscount.mutate({
-            promotionId,
+            discountId,
             productId: stateProductPromotion?.id,
             token: user?.accessToken
         }, {
@@ -296,7 +294,7 @@ const AllProductsComponent = ({ page = "" }) => {
     }
 
     const handleCloseModalDisc = () => {
-        // setValueChangePromotion(""); // Giả sử hàm này là hàm set giá trị cho thanh select
+        setValueChangePromotion(""); // Giả sử hàm này là hàm set giá trị cho thanh select
         setIsModalDiscountOpen(false)
     }
     console.log('stateProductPromotion', stateProductPromotion)
@@ -319,7 +317,7 @@ const AllProductsComponent = ({ page = "" }) => {
 
     const optionsCate = listCate?.map(item => ({
         label: item.name,
-        value: item.id.toString(), // Chuyển id về kiểu string (nếu cần)
+        value: item.id, // Chuyển id về kiểu string (nếu cần)
     }));
 
     return (
@@ -463,15 +461,6 @@ const AllProductsComponent = ({ page = "" }) => {
                                                     />
                                                 </div>
                                             </Form.Item>
-
-                                            {/* <Form.Item
-                                            label="Upload Image"
-                                            name="images"
-                                            getValueFromEvent={(e) => e.fileList}
-                                        >
-                                            <ChooseManyImage />
-                                        </Form.Item> */}
-
                                             <Form.Item className='d-flex justify-content-center mt-5'>
                                                 <MDBBtn color='info' style={{ width: '200px' }} >
                                                     Save changes
@@ -491,59 +480,61 @@ const AllProductsComponent = ({ page = "" }) => {
                     onOke={handleSubmitDisc}
                     onClose={handleCloseModalDisc}
                 >
-                    <MDBModalBody >
-                        <LoadingHasChil isLoading={isLoadingUpdate}>
-                            <MDBRow>
-                                <MDBCol size="4">
-                                    <MDBTypography tag="dt" >
-                                        Promotion:
-                                    </MDBTypography>
-                                </MDBCol>
-                                <MDBCol size="8">
-                                    <MDBTypography tag="dd" >
-                                        {stateProductPromotion?.promotions?.name || "No promotions available"}
-                                    </MDBTypography>
-                                </MDBCol>
-                                {stateProductPromotion?.promotions &&
-                                    <>
-                                        <MDBCol size="4">
-                                            <MDBTypography tag="dt" >
-                                                Event time:
-                                            </MDBTypography>
-                                        </MDBCol>
-                                        <MDBCol size="8">
-                                            <MDBTypography tag="dd" >
-                                                {/* {stateProductPromotion?.promotions?.startDate} - {stateProductPromotion?.promotions[0]?.endDate} */}
-                                            </MDBTypography>
-                                        </MDBCol>
-                                        <MDBCol size="4">
-                                            <MDBTypography tag="dt" >
-                                                Discount Rate:
-                                            </MDBTypography>
-                                        </MDBCol>
-                                        <MDBCol size="8">
-                                            <MDBTypography tag="dd" >
-                                                {stateProductPromotion?.promotions?.percent}%
-                                            </MDBTypography>
-                                        </MDBCol>
-                                    </>
-                                }
-                                <MDBCol size="4">
-                                    <MDBTypography tag="dt" >
-                                        Choose new:
-                                    </MDBTypography>
-                                </MDBCol>
-                                <MDBCol size="8">
-                                    <MDBTypography tag="dd" >
-                                        <InputSelect
-                                            initialOptions={listPromotion?.map(promotion => promotion?.name)}
-                                            onChange={handleOnchangePromotion}
-                                            value={valueChangePromotion}
-                                        />
-                                    </MDBTypography>
-                                </MDBCol>
-                            </MDBRow>
-                        </LoadingHasChil>
+                    <MDBModalBody className='d-flex justify-content-center'>
+                        <div className='w-75'>
+                            <LoadingHasChil isLoading={isLoadingUpdate}>
+                                <MDBRow>
+                                    <MDBCol size="4">
+                                        <MDBTypography tag="dt" >
+                                            Name:
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="8">
+                                        <MDBTypography tag="dd" >
+                                            {stateProductPromotion?.promotions?.name || "No promotions available"}
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    {stateProductPromotion?.promotions &&
+                                        <>
+                                            <MDBCol size="4">
+                                                <MDBTypography tag="dt" >
+                                                    Event time:
+                                                </MDBTypography>
+                                            </MDBCol>
+                                            <MDBCol size="8">
+                                                <MDBTypography tag="dd" >
+                                                    {/* {stateProductPromotion?.promotions?.startDate} - {stateProductPromotion?.promotions[0]?.endDate} */}
+                                                </MDBTypography>
+                                            </MDBCol>
+                                            <MDBCol size="4">
+                                                <MDBTypography tag="dt" >
+                                                    Discount Rate:
+                                                </MDBTypography>
+                                            </MDBCol>
+                                            <MDBCol size="8">
+                                                <MDBTypography tag="dd" >
+                                                    {stateProductPromotion?.promotions?.percent}%
+                                                </MDBTypography>
+                                            </MDBCol>
+                                        </>
+                                    }
+                                    <MDBCol size="4">
+                                        <MDBTypography tag="dt" >
+                                            Choose new:
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="8">
+                                        <MDBTypography tag="dd" >
+                                            <InputSelect
+                                                initialOptions={listPromotion?.map(promotion => promotion?.name)}
+                                                onChange={handleOnchangePromotion}
+                                                value={valueChangePromotion}
+                                            />
+                                        </MDBTypography>
+                                    </MDBCol>
+                                </MDBRow>
+                            </LoadingHasChil>
+                        </div>
                     </MDBModalBody>
                 </ModalComponent>
             </LoadingHasChil>

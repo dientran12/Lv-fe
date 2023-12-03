@@ -9,6 +9,7 @@ import {
     MDBRipple
 } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
+import { formatCurrencyUSD } from '~/utils';
 
 export default function CardProductHome({ product }) {
     const maxLength = 17;
@@ -31,9 +32,9 @@ export default function CardProductHome({ product }) {
                     <div >
                         <MDBTypography tag='h6'>{displayName}</MDBTypography>
                         <MDBTypography className='me-2' tag='strong' style={{ color: '#F44336' }}  >
-                            {product?.discountedPrice ? product?.discountedPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : product?.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                            {formatCurrencyUSD(product?.discountedPrice)}
                         </MDBTypography>
-                        {product?.discountedPrice &&
+                        {product?.discount_id &&
                             <MDBTypography tag='s'>
                                 {product?.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                             </MDBTypography>

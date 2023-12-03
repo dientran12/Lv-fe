@@ -24,6 +24,8 @@ const ProfileShopComponent = () => {
 
     const { isLoading: isLoadingProduct, data: stateShopDetails } = queryShop
 
+    console.log('stateShopDetails', stateShopDetails)
+
     return (
         <div><MDBCard className="mt-3">
             <MDBRow >

@@ -21,8 +21,8 @@ const NavbarHeader = () => {
     }
     return (
         <>
-            <MDBNavbar dark bgColor='dark'>
-                <MDBContainer fluid className='d-flex justify-content-between'>
+            <MDBNavbar dark bgColor='dark' style={{ position: "sticky", top: '120px', zIndex: 1001 }}>
+                <MDBContainer className='d-flex justify-content-between'>
                     <div>
                         <MDBBtn className={`name-tab-nav ${location.pathname === '/' ? 'active-tab' : ''}`} color='dark' onClick={handleNavigateToHome}>
                             <MDBIcon fas icon="home" className='me-1' />

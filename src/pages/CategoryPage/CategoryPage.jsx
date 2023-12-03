@@ -14,39 +14,52 @@ import NavFilterComponent from '~/components/NavbarComponent/NavFilterComponent'
 import LoadingHasChil from '~/components/LoadingComponent/LoadingHasChil';
 import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import PaginationOnCategory from '~/components/PaginationComponent/PaginationOnCategory';
 
 const CategoryPage = () => {
     // const [listCate, setListCate] = useState([]);
+    const listCate = useSelector((state) => {
+        return state?.category?.listCate
+    })
     const [isLoading, setIsLoading] = useState(false);
     const [key, setKey] = useState(null);
     const [dataProduct, setDataProduct] = useState([]);
 
     let search = useSelector((state) => state.product.search);
     console.log('search', search);
+    console.log('listCate', listCate);
+    const items = [
+        {
+            eventKey: 'allproduct', name: 'All products', icon: <RetentionIcon />,
+        },
+        {
+            eventKey: 'cate', name: 'Category', icon: <BarsIcon />,
+            children: [],
+        },
+    ];
+    // useEffect(() => {
+    //     setIsLoading(true)
+    //     fetchDataAllProduct();
+    //     setKey(null)
+    // }, [search]);
 
-    useEffect(() => {
-        // setIsLoading(true)
-        fetchDataAllProduct();
-        setKey(null)
-    }, [search]);
+    if (listCate?.length > 0) {
+        const categoryItem = items.find(item => item.eventKey === 'cate');
+        if (categoryItem) {
+            categoryItem.children = listCate.map((category) => ({
+                eventKey: `cate-${category?.id}`,
+                name: category.name, // Sử dụng thuộc tính categoryName hoặc tên phù hợp
+            }));
+        }
+    }
 
-    // const fetchDataProductOnCate = async (cateId) => {
-    //     try {
-    //         const products = await CateService.getAllProductOnCate(cateId);
-    //         setIsLoading(false)
-    //         console.log('products cate', products)
-    //         if (products.success && Array.isArray(products.products)) {
-    //             const filteredProducts = products.products.filter(product => product.Versions.length > 0);
-    //             console.log('filteredProducts cate', filteredProducts);
+    // useEffect(() => {
 
-    //             setDataProduct(filteredProducts);
-    //         }
-    //     } catch (error) {
-    //         console.error("Error fetching products by category:", error);
-    //     }
-    // };
+    // }, [listCate]);
+
 
     const fetchDataAllProduct = async () => {
+        setIsLoading(true)
         try {
             if (!!search) {
                 const products = await ProductService.getProductSearch({ search });
@@ -60,54 +73,60 @@ const CategoryPage = () => {
         } catch (error) {
             console.error("Error fetching products by category:", error);
         }
+        setIsLoading(false)
+
     };
 
+    const fetchDataProductOnCate = async (cateId) => {
+        setIsLoading(true)
+        try {
+            const products = await ProductService.getAllProductOnCateByIdForCus(cateId);
+            setIsLoading(false)
+            console.log('products cate', products)
+            if (products) {
 
-    // useEffect(() => {
-    //     // search = '';
-    //     if (key === "category") {
-    //         fetchDataAllProduct();
-    //         return
-    //     }
-    // }, [key]);
+                setDataProduct(products);
+            }
+        } catch (error) {
+            console.error("Error fetching products by category:", error);
+        }
+        setIsLoading(false)
+    };
 
-    const items = [
-        {
-            eventKey: 'allproduct', name: 'All products', icon: <RetentionIcon />,
-        },
-        {
-            eventKey: 'cate', name: 'Category', icon: <BarsIcon />,
-            children: [],
-        },
-        // {
-        //     eventKey: 'origin', name: 'Origin', icon: <GlobeIcon />,
-        //     children: [],
-        // },
-        // {
-        //     eventKey: 'type', name: 'Type', icon: <SitemapIcon />,
-        //     children: [],
-        // },
-        // {
-        //     eventKey: 'brand', name: 'Brand', icon: <BinocularsIcon />,
-        //     children: [],
-        // },
-    ];
+    useEffect(() => {
+        // setIsLoading(true)
+        if (key === "allproduct") {
+            fetchDataAllProduct();
+            return
+        }
+        if (key) {
+            const parts = key?.split('-', 2);
+            const id = parts.length > 1 && parts[1];
+            // console.log("key khac null", id);
+            // const keySelected = parts[1] || listCate?.[0]?.id;
+            if (parts[0] === 'cate') {
+                console.log('item tab', id);
+                fetchDataProductOnCate(id);
+            }
+        }
+        // setKey(null)
+    }, [key]);
 
     console.log('key', key)
 
     return (
-        <>
-            <MDBContainer className='mt-2 d-flex'>
+        <div >
+            <MDBContainer className='mt-2 d-flex ' >
                 <SidebarComponent
                     items={items} // Thay IconComponent bằng biểu tượng mong muốn
                     baseUrl="category" // Cần cung cấp baseUrl dựa trên các route của bạn
                     onItemSelected={setKey} // Viết hàm xử lý khi chọn danh mục
-                    defaultSelected={['allproduct']}// Chọn mặc định danh mục đầu tiên hoặc null nếu không có danh mục
+                    defaultSelected='allproduct'// Chọn mặc định danh mục đầu tiên hoặc null nếu không có danh mục
                 />
-                <div className="ms-2 flex-grow-1" style={{ overflowY: 'auto', maxHeight: '90vh' }}>
+                <div className="ms-2 flex-grow-1">
                     <NavFilterComponent />
                     <LoadingHasChil isLoading={isLoading}>
-                        <MDBRow>
+                        <MDBRow style={{ minHeight: '80vh' }}>
                             {
                                 dataProduct?.length !== 0 ?
                                     dataProduct?.map((item, index) => (
@@ -118,10 +137,13 @@ const CategoryPage = () => {
                                     <div> No Data </div>
                             }
                         </MDBRow>
+                        <div className='text-center'>
+                            <PaginationOnCategory />
+                        </div>
                     </LoadingHasChil>
                 </div>
             </MDBContainer >
-        </>
+        </div>
     )
 }
 

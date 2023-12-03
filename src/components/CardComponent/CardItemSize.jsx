@@ -10,7 +10,7 @@ import { toast } from 'react-toastify';
 
 const CardItemSize = ({ dataItem, queryVersion, setIsLoading }) => {
     const [openModalDelete, setOpenModalDelete] = useState(false);
-    const [selectedValue, setSelectedValue] = useState(dataItem?.Size?.sizeName);
+    const [selectedValue, setSelectedValue] = useState(dataItem?.sizeName);
     const [quantity, setQuantity] = useState(dataItem?.quantity || 1);
     const user = useSelector((state) => {
         return state?.user
@@ -20,51 +20,15 @@ const CardItemSize = ({ dataItem, queryVersion, setIsLoading }) => {
 
     const mutationAdd = useCustomMutation(
         (data) => {
-            const {
-                versionId,
-                sizeName,
-                quantity,
-                token
-            } = data
-            const res = SizeService.createSizeItem({
-                versionId,
-                sizeName,
-                quantity,
-                token,
-            })
-            return res
+            SizeService.createSizeItem(data)
         }
     )
     const mutationUpdate = useCustomMutation(
-        (data) => {
-            const {
-                id,
-                versionId,
-                sizeName,
-                quantity,
-                token
-            } = data
-            const res = SizeService.updateSizeItem({
-                id,
-                versionId,
-                sizeName,
-                quantity,
-                token,
-            })
-            return res
-        }
+        (data) => SizeService.updateSizeItem(data)
+
     )
     const mutationDeleted = useCustomMutation(
-        (data) => {
-            const { id,
-                token
-            } = data
-            const res = SizeService.deleteSizeItem(
-                id,
-                token
-            )
-            return res
-        }
+        (data) => SizeService.deleteSizeItem(data)
     )
     const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDeleted;
     const { data: dataUpdate, isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate, isError: isErrorUpdate } = mutationUpdate;
@@ -135,8 +99,8 @@ const CardItemSize = ({ dataItem, queryVersion, setIsLoading }) => {
     };
 
     const handleDeleteSizeItem = () => {
-        if (dataItem?.id) {
-            mutationDeleted.mutate({ id: dataItem?.id, token: user?.accessToken }, {
+        if (dataItem?.sizeName) {
+            mutationDeleted.mutate({ sizeName: dataItem?.sizeName, token: user?.accessToken }, {
                 onSettled: () => {
                     queryVersion.refetch()
                 }
@@ -149,6 +113,7 @@ const CardItemSize = ({ dataItem, queryVersion, setIsLoading }) => {
     }
 
     const handleSelectChange = (value) => {
+        console.log('value')
         setSelectedValue(value);
     };
 
@@ -157,24 +122,23 @@ const CardItemSize = ({ dataItem, queryVersion, setIsLoading }) => {
     };
 
     const handleSubmit = () => {
-        if (selectedValue === dataItem?.Size?.sizeName && dataItem?.quantity === quantity) {
+        if (selectedValue === dataItem?.sizeName && dataItem?.quantity === quantity) {
             return
         }
         if (dataItem?.id) {
-            mutationUpdate.mutate({ id: dataItem?.id, versionId: dataItem?.versionId, sizeName: selectedValue, quantity: quantity, token: user?.accessToken }, {
+            // update
+            mutationUpdate.mutate({ sizeId: dataItem?.id, versionId: dataItem?.versionId, sizeName: selectedValue, quantity: quantity, token: user?.accessToken }, {
                 onSettled: () => {
                     queryVersion.refetch()
                 }
             });
-            console.log('mutationUpdate')
         } else {
+            // add new
             mutationAdd.mutate({ versionId: dataItem?.versionId, sizeName: selectedValue, quantity: quantity, token: user?.accessToken }, {
                 onSettled: () => {
                     queryVersion.refetch()
                 }
             });
-            console.log('mutationAdd')
-
         }
     };
 

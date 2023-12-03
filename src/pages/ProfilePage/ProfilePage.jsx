@@ -22,13 +22,17 @@ export default function ProfilePage() {
     const user = useSelector((state) => state.user)
     const [avatar, setAvatar] = useState(user?.avatar);
     const [name, setName] = useState(user?.username);
+    const [detailAddress, setDetailAddress] = useState(user?.detailAdress);
     const [email, setEmail] = useState(user?.email);
+    const [phone, setPhone] = useState(user?.phone);
     const [loading, setLoading] = useState(false)
 
 
     useEffect(() => {
         setLoading(true)
-        setAvatar(user?.avatar)
+        if (user?.avatar) {
+            setAvatar(user?.avatar)
+        }
         setLoading(false)
     }, [user?.avatar])
 
@@ -106,10 +110,19 @@ export default function ProfilePage() {
                                 <hr />
                                 <MDBRow>
                                     <MDBCol sm="3">
+                                        <MDBCardText>Address</MDBCardText>
+                                    </MDBCol>
+                                    <MDBCol sm="9">
+                                        <InputAndSubmit nameDataFile='address' />
+                                    </MDBCol>
+                                </MDBRow>
+                                <hr />
+                                <MDBRow>
+                                    <MDBCol sm="3">
                                         <MDBCardText>Phone</MDBCardText>
                                     </MDBCol>
                                     <MDBCol sm="9">
-                                        <InputAndSubmit nameDataFile='phone' type='number' />
+                                        <InputAndSubmit nameDataFile='phone' />
                                     </MDBCol>
                                 </MDBRow>
                                 {/* <MDBRow>

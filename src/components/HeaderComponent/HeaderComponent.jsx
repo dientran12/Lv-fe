@@ -191,15 +191,14 @@ const HeaderComponent = () => {
                         </div>
                     </div>
                 </MDBContainer>
+
             </div>
             <Modal backdrop="static" open={isModalStateShop} onClose={() => setIsModalStateShop(false)} >
                 <div>
                     {modalContent}
                 </div>
             </Modal>
-            <MDBContainer>
-                <NavbarHeader />
-            </MDBContainer>
+            <NavbarHeader />
         </>
     )
 }

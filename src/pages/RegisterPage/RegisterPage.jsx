@@ -58,7 +58,7 @@ const RegisterPage = () => {
     const handleRegister = () => {
         console.log('sign in', name, address, description)
         if (name) {
-            mutation.mutate({ accessToken: user?.accessToken, description: description, name: name });
+            mutation.mutate({ accessToken: user?.accessToken, avatar: image, address, description: description, name: name });
         }
     }
 

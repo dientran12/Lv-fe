@@ -9,17 +9,7 @@ export const categorySlice = createSlice({
     initialState,
     reducers: {
         updateCate: (state = initialState, action) => {
-            console.log("action", action);
             state.listCate = action.payload
-            // state.name = name
-            // state.username = username
-            // state.email = email
-            // state.phone = phone || ''
-            // state.id = id
-            // state.role = role
-            // state.avatar = avatar
-            // state.shop_id = shop_id
-            // state.accessToken = accessToken
         },
     },
 })

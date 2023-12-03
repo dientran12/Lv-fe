@@ -6,6 +6,7 @@ const initialState = {
     email: '',
     phone: '',
     avatar: '',
+    address: '',
     shop_id: null,
     role: "customer",
     id: '',
@@ -17,10 +18,11 @@ const userSlide = createSlice({
     initialState,
     reducers: {
         updateUser: (state, action) => {
-            const { username, role, shop_id, name, email, accessToken, phone, avatar, id } = action.payload
+            const { username, role, shop_id, name, email, address, accessToken, phone, avatar, id } = action.payload
             state.name = name
             state.username = username
             state.email = email
+            state.address = address
             state.phone = phone || ''
             state.id = id
             state.role = role
@@ -36,6 +38,7 @@ const userSlide = createSlice({
             state.id = ''
             state.role = 'customer'
             state.avatar = ''
+            state.address = ''
             state.shop_id = ''
             state.accessToken = ''
         },

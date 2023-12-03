@@ -22,6 +22,7 @@ import InfoStatusShopComponet from '~/components/InfoStatusShopComponent/InfoSta
 import Noimage from '~/assets/images/no-image.jpg';
 import ErrorImage from '~/assets/images/image-error.jpg';
 import { formatCurrencyUSD } from '~/utils';
+import * as ShopService from '~/services/ShopService'
 
 
 function DetailProductPage() {
@@ -31,14 +32,17 @@ function DetailProductPage() {
     const [activeIndex, setActiveIndex] = useState(0);
     const [isLoading, setIsLoading] = useState(true)
     const [selectedSizeSelect, setSelectedSizeSelect] = useState(0);
+    const [stateShopDetails, setStateShopDetails] = useState({})
+    const [isLoadingDetailShop, setIsLoadingDetailShop] = useState(false)
+
 
     const handleSizeChange = (sizeId) => {
         setSelectedSizeSelect(sizeId);
     };
 
     const getMaxQuantity = (sizeId) => {
-        // let selectedSizeItem = dataProduct && dataProduct[activeIndex]?.SizeItems[sizeId];
-        // return selectedSizeItem ? selectedSizeItem.quantity : 1;
+        let selectedSizeItem = listVersion && listVersion[activeIndex]?.sizes[sizeId];
+        return selectedSizeItem ? selectedSizeItem.quantity : 1;
     };
 
     const handleQuantityChange = (newValue) => {
@@ -56,6 +60,7 @@ function DetailProductPage() {
             brand: res?.brand,
             gender: res?.gender,
             origin: res?.origin,
+            shopId: res?.shop_id,
             discountId: res?.discount_id,
             discountedPrice: res?.discountedPrice || res?.price,
             versions: res?.versions,
@@ -73,17 +78,59 @@ function DetailProductPage() {
 
 
     const handleSlideChange = (swiper) => {
-        setActiveIndex(swiper.activeIndex);
+        const index = swiper.activeIndex === 0 ? 0 : swiper.activeIndex - 1;
+        setActiveIndex(index);
     };
 
     console.log('item active', activeIndex)
     console.log('listVersion', listVersion)
 
     const handleBuyClick = () => {
+        // Xử lý khi người dùng nhấn mua
+        console.log('Size đã chọn:', listVersion[activeIndex]?.sizes[selectedSizeSelect].sizeName);
+        console.log('Số lượng đã chọn:', quantity);
+        return [{
+            shopId: detailProduct?.shopId,
+            shopImage: stateShopDetails?.avatar,
+            shopName: stateShopDetails?.name,
+            versionId: listVersion[activeIndex]?.id,
+            total: quantity,
+            sellingPrice: detailProduct?.discountedPrice,
+            price: detailProduct?.price,
+            image: listVersion[activeIndex]?.image,
+            sizeName: listVersion[activeIndex]?.sizes[selectedSizeSelect]?.sizeName,
+            sizeId: listVersion[activeIndex]?.sizes[selectedSizeSelect]?.id,
+            quantity: quantity
+            // sizes: [{
+            // },]
+        }]
     };
+
+
+    const fetchGetDetailsShop = async (idShop) => {
+        setIsLoadingDetailShop(true)
+        const res = await ShopService.getDetailsShop({ id: idShop })
+        if (res) {
+            setStateShopDetails({
+                id: res?.id,
+                name: res?.name,
+                description: res?.description,
+                status: res?.status,
+                avatar: res?.avatar,
+                address: res?.address
+            })
+        }
+        setIsLoadingDetailShop(false)
+    }
+
+    useEffect(() => {
+        if (detailProduct?.shopId) { fetchGetDetailsShop(detailProduct?.shopId) }
+    }, [detailProduct?.shopId]);
 
     const handleAddToCartClick = () => {
         // Thực hiện các xử lý khác nếu cần
+        const dataAddToCart = { sizeItem: listVersion[activeIndex]?.sizes[selectedSizeSelect], quantity: quantity }
+        return dataAddToCart
     };
 
     return (
@@ -181,20 +228,6 @@ function DetailProductPage() {
                                     </MDBCol>
                                     <MDBCol size="3">
                                         <MDBTypography tag="dt" className="col-3">
-                                            Color:
-                                        </MDBTypography>
-                                    </MDBCol>
-                                    <MDBCol size="9">
-                                        <MDBTypography tag="dd" className="col-9">
-                                            {activeIndex !== 0 ?
-                                                listVersion[activeIndex - 1]?.color
-                                                :
-                                                listVersion[activeIndex]?.color
-                                            }
-                                        </MDBTypography>
-                                    </MDBCol>
-                                    <MDBCol size="3">
-                                        <MDBTypography tag="dt" className="col-3">
                                             Price:
                                         </MDBTypography>
                                     </MDBCol>
@@ -205,6 +238,30 @@ function DetailProductPage() {
                                         {detailProduct?.discountId && <MDBTypography className=" ms-3 fs-5 text fw-light" tag='s'>
                                             {formatCurrencyUSD(detailProduct?.price)}
                                         </MDBTypography>}
+                                    </MDBCol>
+                                    <MDBCol size="3">
+                                        <MDBTypography tag="dt" className="col-3">
+                                            Color:
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="9">
+                                        <MDBTypography tag="dd" className="col-9">
+                                            {activeIndex !== 0 ?
+                                                listVersion[activeIndex]?.color
+                                                :
+                                                listVersion[activeIndex]?.color
+                                            }
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="3">
+                                        <MDBTypography tag="dt" className="col-3">
+                                            Stock:
+                                        </MDBTypography>
+                                    </MDBCol>
+                                    <MDBCol size="9">
+                                        <MDBTypography tag="dd" className="col-9">
+                                            {listVersion[activeIndex]?.sizes[selectedSizeSelect]?.quantity || <div className="textColorRed">Out of Stock</div>}
+                                        </MDBTypography>
                                     </MDBCol>
                                 </MDBRow>
                                 <hr />
@@ -217,8 +274,8 @@ function DetailProductPage() {
                                             onChange={(e) => handleSizeChange(e.target.value)}
                                         >
                                             {listVersion && listVersion[activeIndex]?.sizes.map((sizeItem, index) => (
-                                                <option key={sizeItem.Size.sizeName} value={index}>
-                                                    {sizeItem.Size.sizeName}
+                                                <option key={sizeItem?.sizeName} value={index}>
+                                                    {sizeItem?.sizeName}
                                                 </option>
                                             ))}
                                         </select>
@@ -235,19 +292,33 @@ function DetailProductPage() {
                                     </MDBCol>
                                     <div className="mb-3">
                                         <span className="h6 text-danger">
-                                            {detailProduct?.discountedPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                            {formatCurrencyUSD(detailProduct?.discountedPrice)}
                                         </span>
                                         <span className="mx-2 ">x</span>
                                         <span className="text-muted">{quantity}</span>
                                         <span className="mx-2 ">=</span>
                                         <span className="h5 text-danger">
-                                            {((detailProduct?.discountedPrice || 0) * quantity).toLocaleString('vi-VN', {
-                                                style: 'currency',
-                                                currency: 'VND'
-                                            })}
+                                            {formatCurrencyUSD(detailProduct?.discountedPrice * quantity)}
                                         </span>
                                     </div>
                                 </MDBRow>
+
+                                <div className="me-2 d-inline-block">
+                                    <ButtonBuyProduct
+                                        className="shadow-0"
+                                        disabled={listVersion[activeIndex]?.sizes[selectedSizeSelect]?.quantity ? false : true}
+                                        onBuyClick={handleBuyClick}
+                                    />
+                                </div>
+                                <ButtonAddCartComponent
+                                    color="warning"
+                                    className="shadow-0 ms-3"
+                                    disabled={listVersion[activeIndex]?.sizes[selectedSizeSelect]?.quantity ? false : true}
+                                    onAddToCartClick={handleAddToCartClick}
+                                >
+                                    <MDBIcon fas icon="cart-plus" className="me-1" />
+                                    Add to cart
+                                </ButtonAddCartComponent>
 
                             </div>
                         </MDBCol>

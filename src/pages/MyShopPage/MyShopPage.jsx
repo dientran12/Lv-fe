@@ -81,6 +81,16 @@ const MyShopPage = () => {
     }, []);
 
     if (listCate?.length > 0) {
+        const categoryItem = items.find(item => item.eventKey === 'cate');
+        if (categoryItem) {
+            categoryItem.children = listCate.map((category) => ({
+                eventKey: `cate-${category?.id}`,
+                name: category.categoryName, // Sử dụng thuộc tính categoryName hoặc tên phù hợp
+            }));
+        }
+    }
+
+    if (listCate?.length > 0) {
         // Tìm phần tử có key là 'product'
         const productItem = items.find(item => item.key === 'product');
 

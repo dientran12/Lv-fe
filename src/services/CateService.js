@@ -6,8 +6,12 @@ export const getAllCate = async () => {
     return res.data
 }
 
-export const getAllProductOnCate = async (id) => {
-    const res = await axios.get(`${process.env.REACT_APP_API_URL_BACKEND}/category/get-by-category/${id}`)
+export const getAllProductOnCateById = async (id) => {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL_BACKEND}/categories/byCategory/${id}`)
     return res.data
 }
 
+export const getAllProductOnCateByName = async (name) => {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL_BACKEND}/categories/byCategory/${name}`)
+    return res.data
+}

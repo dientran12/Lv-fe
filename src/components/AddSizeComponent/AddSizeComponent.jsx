@@ -6,24 +6,26 @@ import { useQuery } from '@tanstack/react-query';
 import LoadingHasChil from '../LoadingComponent/LoadingHasChil';
 
 
-const AddSizeComponent = ({ idVersion }) => {
+const AddSizeComponent = ({ versionId }) => {
     const [listSizeOfVersion, setListSizeOfVersion] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
     const fetchGetDetailsVersion = async (id) => {
-        const res = await VersionService.getDetailVersion(id);
+        const res = await VersionService.getDetailVersion(id)
         return res
     };
-    const queryVersion = useQuery({ queryKey: ['version'], queryFn: () => fetchGetDetailsVersion(idVersion) })
+    const queryVersion = useQuery({ queryKey: ['version'], queryFn: () => fetchGetDetailsVersion(versionId) })
     const { isLoading: isLoadingProduct, data: version } = queryVersion
 
     useEffect(() => {
-        setListSizeOfVersion(version?.version?.SizeItems);
+        setListSizeOfVersion(version?.sizes);
     }, [version]);
+
+    console.log('version?.sizes', version?.sizes)
 
     const handleNewCardItem = () => {
         setListSizeOfVersion((prevList) => {
-            const newItem = { Size: { sizeName: '' }, quantity: 1, versionId: idVersion };
+            const newItem = { sizeName: '', quantity: 1, versionId: versionId };
             const newList = [...prevList, newItem];
             return newList;
         })
@@ -34,7 +36,7 @@ const AddSizeComponent = ({ idVersion }) => {
             <LoadingHasChil isLoading={isLoading}>
                 {listSizeOfVersion?.map((size, index) => (
                     <CardItemSize
-                        key={size?.id || index}
+                        key={index}
                         dataItem={size}
                         queryVersion={queryVersion}
                         listSizeOfVersion={listSizeOfVersion}

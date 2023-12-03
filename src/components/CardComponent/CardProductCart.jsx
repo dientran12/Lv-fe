@@ -12,14 +12,14 @@ import {
 import { useCustomMutation } from '~/hooks/useMutationHook';
 import * as CartService from '~/services/CartService'
 import { useSelector } from 'react-redux';
-import { formatCurrency } from '~/utils';
+import { formatCurrency, formatCurrencyUSD } from '~/utils';
 
 
 const CardProductCart = ({ item, index, isChecked, onCheckboxChange, onQuantityChange, queryCartItems }) => {
     const user = useSelector((state) => {
         return state?.user
     })
-    const displayName = item.productdata.Version.Product.name.length > 15 ? `${item.productdata.Version.Product.name.substring(0, 15)}...` : item.productdata.Version.Product.name;
+    const displayName = item?.productName.length > 15 ? `${item?.productName.substring(0, 15)}...` : item?.productName;
 
     // const [checkedItem, setCheckedItem] = useState(isChecked);
     const [quantityValue, setQuantityValue] = useState(item?.quantity);
@@ -29,13 +29,13 @@ const CardProductCart = ({ item, index, isChecked, onCheckboxChange, onQuantityC
     )
 
     const handleOnChangeQuantity = (e) => {
-        // console.log("e", e.target.value)
+        console.log("e", e.target.value)
         setQuantityValue(e.target.value)
         onQuantityChange(index, e.target.value)
     }
 
     const handleCheckboxChange = (value) => {
-        // console.log("checked ", value)
+        console.log("checked ", value)
         // setCheckedItem(value)
         onCheckboxChange(index, value)
     }
@@ -66,33 +66,34 @@ const CardProductCart = ({ item, index, isChecked, onCheckboxChange, onQuantityC
                         />
                         <div>
                             <MDBCardImage
-                                src={item.productdata.Version.image}
-                                className="rounded-3"
-                                style={{ maxWidth: "100px" }}
+                                src={item?.image}
+                                className="rounded-3 "
+                                style={{ maxWidth: "80px", height: "auto", objectFit: 'cover', aspectRatio: "1/1" }}
                                 alt="Shopping item"
+                                fluid
                             />
                         </div>
                         <div className="mx-3 d-flex flex-column" style={{ maxWidth: "200px" }}>
                             <MDBTypography tag="dt" className="mb-2">{displayName}</MDBTypography>
                             <div className="d-flex flex-row " style={{ fontStyle: "italic" }}>
                                 <MDBTypography tag="h6" className="me-1 ">
-                                    Size: <span className="textColorRed">{item.productdata.Size.sizeName}</span>
+                                    Size: <span className="textColorRed">{item?.sizeName}</span>
                                 </MDBTypography>
                                 <MDBTypography tag="h6" className="mb-0 ">
-                                    Color: <span className="textColorRed">{item.productdata?.Version?.Color?.colorname}</span>
+                                    Color: <span className="textColorRed">{item?.color}</span>
                                 </MDBTypography>
                             </div>
                         </div>
                     </div>
                     <div className="d-flex flex-row flex-grow-1  align-items-center">
                         <div className="d-flex flex-column align-items-center">
-                            {item?.discountedPrice &&
+                            {item?.discountPrice !== item?.price &&
                                 <MDBTypography tag='s' className="mb-0">
-                                    {formatCurrency(item?.productdata?.Version?.Product?.price)}
+                                    {formatCurrencyUSD(item?.price)}
                                 </MDBTypography>
                             }
                             <MDBTypography tag="h6" className="mb-0" style={{ color: '#F44336' }}>
-                                {formatCurrency(item?.discountedPrice || item?.productdata?.Version?.Product?.price)}
+                                {formatCurrencyUSD(item?.discountPrice || item?.price)}
                             </MDBTypography>
                         </div>
                         <div className="mx-1">x</div>
@@ -107,7 +108,7 @@ const CardProductCart = ({ item, index, isChecked, onCheckboxChange, onQuantityC
                         </div>
                     </div>
                     <MDBTypography tag="h6" className="mb-0 text-danger">
-                        {formatCurrency(item?.discountedPrice ? item?.discountedPrice * quantityValue : item?.productdata?.Version?.Product?.price * quantityValue)}
+                        {formatCurrencyUSD(item?.discountPrice ? item?.discountPrice * quantityValue : item?.price * quantityValue)}
                     </MDBTypography>
                     <MDBIcon className="color-hover-green px-4 py-2" size='xl' fas icon="trash" onClick={handleOnDelete} style={{ color: 'red', cursor: 'pointer' }} />
                 </div>

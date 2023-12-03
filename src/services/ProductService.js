@@ -49,6 +49,17 @@ export const getAllProductForShopOnCate = async ({ cateId, shopId, accessToken }
     return res.data
 }
 
+export const getAllProductOnCateByIdForCus = async (id) => {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL_BACKEND}/products/byCategory/${id}`)
+    return res.data
+}
+
+
+export const getAllProductOnCateByNameForCus = async (name) => {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL_BACKEND}/products/byCategoryName/${name}`)
+    return res.data
+}
+
 export const getProductSearch = async ({ search }) => {
     const res = await axios.get(`${process.env.REACT_APP_API_URL_BACKEND}/product/search-have-image/?name=${search}`)
     return res.data
